@@ -7,6 +7,7 @@ from app.models import EventType, QueueCountUpdate, VisionEvent
 
 
 RECENT_WAIT_WINDOW_MINUTES = 5
+STALE_WAIT_CUTOFF_MINUTES = 20
 
 
 class WaitTimeState:
@@ -60,16 +61,21 @@ class WaitTimeState:
         
         now = datetime.now(timezone.utc)
         cutoff = now - timedelta(minutes=RECENT_WAIT_WINDOW_MINUTES)
+        stale_cutoff = now - timedelta(minutes=STALE_WAIT_CUTOFF_MINUTES)
 
         recent_waits = [wait_seconds for wait_seconds, timestamp in self.completed_waits if timestamp >= cutoff]
 
         if recent_waits:
             return sum(recent_waits) / len(recent_waits)
         
-        # Fallback: latest completed wait.
-        latest_wait_seconds, _ = self.completed_waits[-1]
-        return latest_wait_seconds
-    
+        # Fallback: latest completed wait if it's not older than the stale cutoff.
+        latest_wait_seconds, latest_timestamp = self.completed_waits[-1]
+
+        if latest_timestamp >= stale_cutoff:
+            return latest_wait_seconds
+
+        return None
+
     def get_status(self):
         estimated_wait = self.get_estimated_wait_seconds()
 
