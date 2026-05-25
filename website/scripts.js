@@ -1,5 +1,5 @@
 async function loadData() {
-    const response = await fetch("/data.json");
+    const response = await fetch("/store1data.json");
     const data = await response.json();
 
     // TODO change this to match actual website

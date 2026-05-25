@@ -39,39 +39,9 @@ html, body {
     color: var(--purple-white);
 }
 
-.dark-bruma {
-    background-color: var(--dark-aqua);
-    color: var(--purple-white);
-}
-
-.dark-green {
-    background-color: var(--dark-green);
-    color: var(--purple-white);
-}
-
-.dark-pink {
-    background-color: var(--dark-pink);
-    color: var(--purple-white);
-}
-
 .light {
     background-color: var(--purple-white);
     color: var(--dark-purple);
-}
-
-.light-bruma {
-    background-color: var(--purple-white);
-    color: var(--dark-aqua);
-}
-
-.light-green {
-    background-color: var(--purple-white);
-    color: var(--dark-green);
-}
-
-.light-pink {
-    background-color: var(--purple-white);
-    color: var(--dark-pink);
 }
 
 .accent {
@@ -95,9 +65,6 @@ html, body {
 
 .list {
     margin: 1.5rem 0.7rem;
-}
-
-.small.list {
     flex: 2;
     justify-content: center;
     align-self: center;
@@ -107,13 +74,9 @@ html, body {
     box-shadow: -0.3em 0.3em var(--accent-olive-green);
 }
 
-.small.list:hover {
-    box-shadow: none;
-}
-
-.large.list {
-    flex: 3;
-    text-align: left;
+.accent > .list {
+    border: 0.5rem solid var(--purple-white);
+    box-shadow: -0.3em 0.3em var(--dark-purple);
 }
 
 @media (min-width: 1000px) {
@@ -132,12 +95,6 @@ html, body {
     font-size: 3rem;
     font-family: "Josefin Sans", sans-serif;
     font-weight: 1000;
-}
-
-.VFH-logo {
-    max-width: 80%;
-    max-height: 80%;
-    height: auto;
 }
 
 .platform-logo {
@@ -218,6 +175,7 @@ h2 {
 .title {
     border-bottom: 0.2em solid var(--accent-olive-green);
     margin: 0 0 0.6em;
+    font-size: 2em
 }
 
 .accent > .title {
