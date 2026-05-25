@@ -1,13 +1,9 @@
 /* Named colors */
 :root {
-    --dark-purple: #2C2853;
-    --darker-purple: #191730;
-    --accent-olive-green: #8F9A13;
-    --purple-white: #f3f2ff;
-    --light-purple: #CFCCFF;
-    --dark-aqua: #284E53;
-    --dark-green: #4C4F26;
-    --dark-pink: #522853;
+    --dark-color: #38175a;
+    --darker-color: #1d0235;
+    --accent-color: #836EAA;
+    --white-color: #E4E0EE;
 }
 /* Responsiveness and other behavior */
 html {
@@ -35,18 +31,18 @@ html, body {
 
 /* Color options for elements */
 .dark {
-    background-color: var(--dark-purple);
-    color: var(--purple-white);
+    background-color: var(--dark-color);
+    color: var(--white-color);
 }
 
 .light {
-    background-color: var(--purple-white);
-    color: var(--dark-purple);
+    background-color: var(--white-color);
+    color: var(--dark-color);
 }
 
 .accent {
-    background-color: var(--accent-olive-green);
-    color: var(--purple-white);
+    background-color: var(--accent-color);
+    color: var(--white-color);
 }
 
 /* Element customization */
@@ -70,24 +66,24 @@ html, body {
     align-self: center;
     font-size: 1.5rem;
     padding: 0.5em;
-    border: 0.5rem solid var(--purple-white);
-    box-shadow: -0.3em 0.3em var(--accent-olive-green);
+    border: 0.5rem solid var(--white-color);
+    box-shadow: -0.3em 0.3em var(--accent-color);
 }
 
 .accent > .list {
-    border: 0.5rem solid var(--purple-white);
-    box-shadow: -0.3em 0.3em var(--dark-purple);
+    border: 0.5rem solid var(--white-color);
+    box-shadow: -0.3em 0.3em var(--dark-color);
 }
 
 @media (min-width: 1000px) {
     .shadow {
         box-shadow:
-                0 0 1rem 0.2rem var(--dark-purple),
-                -1rem 1rem var(--accent-olive-green);
+                0 0 1rem 0.2rem var(--dark-color),
+                -1rem 1rem var(--accent-color);
     }
 
     .single-shadow {
-        box-shadow:0 0 1rem 0.2rem var(--darker-purple);
+        box-shadow:0 0 1rem 0.2rem var(--darker-color);
     }
 }
 
@@ -134,7 +130,7 @@ html, body {
 body {
     margin: 0;
     font-family: 'Roboto', sans-serif;
-    background-color: var(--dark-purple);
+    background-color: var(--dark-color);
     line-height: 1.6;
 }
 
@@ -147,7 +143,7 @@ header {
     font-size: 1.5rem;
     padding: 0.5em 1.5em;
     text-align: center;
-    border-bottom: 0.3em solid var(--accent-olive-green);
+    border-bottom: 0.3em solid var(--accent-color);
 }
 
 .container {
@@ -173,13 +169,13 @@ h2 {
 }
 
 .title {
-    border-bottom: 0.2em solid var(--accent-olive-green);
+    border-bottom: 0.2em solid var(--accent-color);
     margin: 0 0 0.6em;
     font-size: 2em
 }
 
 .accent > .title {
-    border-bottom: 0.2em solid var(--dark-purple);
+    border-bottom: 0.2em solid var(--dark-color);
 }
 
 p {
@@ -258,10 +254,10 @@ nav {
         position: absolute;
         right: 0;
         top: 100%;
-        background: var(--purple-white);
+        background: var(--white-color);
         flex-flow: column wrap;
         gap: 0;
-        border: 0.2em solid var(--dark-purple);
+        border: 0.2em solid var(--dark-color);
     }
 
     .separator {
