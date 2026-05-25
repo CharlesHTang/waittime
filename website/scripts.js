@@ -37,15 +37,17 @@ async function loadData() {
     const response = await fetch("/store1data.json");
     const data = await response.json();
 
-    // TODO change this to match actual website
-    document.getElementById("restaurant-name").textContent =
-        data.restaurant;
+    const waitTimeElements = document.querySelectorAll(".wait-time");
 
-    document.getElementById("wait-time").textContent =
-        data.waitMinutes;
+    for (const element of waitTimeElements) {
+        element.textContent = "Wait Time: " + Math.round(data.average_wait_seconds / 60) + " min";
+    }
 
-    document.getElementById("queue-count").textContent =
-        data.ordersInQueue;
+    const lineCountElements = document.querySelectorAll(".line-count");
+
+    for (const element of lineCountElements) {
+        element.textContent = "Line Length: " + data.active_people_in_line + " people";
+    }
 }
 
 loadData();
