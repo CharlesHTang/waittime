@@ -1,7 +1,10 @@
 # vision/worker.py
 
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import time
+import json
+import subprocess
+from pathlib import Path
 
 import cv2
 import requests
@@ -23,6 +26,10 @@ from vision.config import (
     PERSON_CLASS_ID,
     TRACKER,
     QUEUE_COUNT_POST_INTERVAL_SECONDS,
+    OUTPUT_JSON_PATH,
+    S3_JSON_URI,
+    S3_UPLOAD_INTERVAL_SECONDS,
+    STORE_ID,
 )
 
 from vision.geometry import (
@@ -68,6 +75,93 @@ class EventMemory:
         if track_id in self.active_tracks:
             self.active_tracks.remove(track_id)
 
+
+RECENT_WAIT_WINDOW_MINUTES = 5
+STALE_WAIT_CUTOFF_MINUTES = 20
+
+
+class LocalWaitState:
+    def __init__(self):
+        self.active_line_entries = {}
+        self.latest_queue_count = 0
+
+    def record_line_enter(self, track_id: int, timestamp: datetime):
+        if track_id not in self.active_line_entries:
+            self.active_line_entries[track_id] = timestamp
+
+    def record_pickup(self, track_id: int, timestamp: datetime):
+        if track_id in self.active_line_entries:
+            start_time = self.active_line_entries.pop(track_id)
+            wait_seconds = (timestamp - start_time).total_seconds()
+
+            if wait_seconds >= 0:
+                self.completed_waits.append((wait_seconds, timestamp))
+
+    def update_queue_count(self, queue_count: int):
+        self.latest_queue_count = int(queue_count)
+
+    def get_estimated_wait_seconds(self):
+        if not self.completed_waits:
+            return None
+
+        now = datetime.now(timezone.utc)
+
+        recent_cutoff = now - timedelta(minutes=RECENT_WAIT_WINDOW_MINUTES)
+        stale_cutoff = now - timedelta(minutes=STALE_WAIT_CUTOFF_MINUTES)
+
+        recent_waits = [
+            wait_seconds
+            for wait_seconds, timestamp in self.completed_waits
+            if timestamp >= recent_cutoff
+        ]
+
+        if recent_waits:
+            return sum(recent_waits) / len(recent_waits)
+
+        latest_wait_seconds, latest_timestamp = self.completed_waits[-1]
+
+        if latest_timestamp >= stale_cutoff:
+            return latest_wait_seconds
+
+        return None
+
+    def to_json_data(self, store_id: str, camera_id: str):
+        return {
+            "store_id": store_id,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "active_people_in_line": self.latest_queue_count,
+            "average_wait_seconds": self.get_estimated_wait_seconds(),
+        }
+    
+
+def write_status_json(state: LocalWaitState):
+    data = state.to_json_data(STORE_ID, CAMERA_ID)
+
+    with open(OUTPUT_JSON_PATH, "w") as f:
+        json.dump(data, f, indent=2)
+
+    print(f"Wrote {OUTPUT_JSON_PATH}: {data}")
+
+
+def upload_status_json_to_s3():
+    command = [
+        "aws",
+        "s3",
+        "cp",
+        OUTPUT_JSON_PATH,
+        S3_JSON_URI,
+        "--content-type",
+        "application/json",
+        "--cache-control",
+        "no-cache",
+    ]
+
+    try:
+        subprocess.run(command, check=True)
+        print(f"Uploaded {OUTPUT_JSON_PATH} to {S3_JSON_URI}")
+    except subprocess.CalledProcessError as exc:
+        print(f"Failed to upload JSON to S3: {exc}")
+    
 
 def post_event(
     track_id: int,
