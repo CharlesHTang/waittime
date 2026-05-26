@@ -10,8 +10,6 @@ VIDEO_SOURCE = 0
 
 QUEUE_COUNT_POST_INTERVAL_SECONDS = 1.0
 
-CAMERA_ID = "camera_1"
-
 CONFIDENCE_THRESHOLD = 0.45
 
 # Region where someone enters the line.
