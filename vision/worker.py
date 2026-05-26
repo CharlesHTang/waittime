@@ -4,18 +4,14 @@ from datetime import datetime, timezone, timedelta
 import time
 import json
 import subprocess
-from pathlib import Path
 
 import cv2
-import requests
 from ultralytics import YOLO, solutions
 
 from vision.config import (
     MODEL_PATH,
     POSE_MODEL_PATH,
     VIDEO_SOURCE,
-    API_EVENTS_URL,
-    QUEUE_COUNT_URL,
     CAMERA_ID,
     CONFIDENCE_THRESHOLD,
     LINE_REGION,
@@ -83,6 +79,7 @@ STALE_WAIT_CUTOFF_MINUTES = 20
 class LocalWaitState:
     def __init__(self):
         self.active_line_entries = {}
+        self.completed_waits = []
         self.latest_queue_count = 0
 
     def record_line_enter(self, track_id: int, timestamp: datetime):
@@ -135,6 +132,9 @@ class LocalWaitState:
     
 
 def write_status_json(state: LocalWaitState):
+    """
+    Writes the current wait status to a local JSON file, which can then be uploaded to S3.
+    """
     data = state.to_json_data(STORE_ID, CAMERA_ID)
 
     with open(OUTPUT_JSON_PATH, "w") as f:
@@ -144,6 +144,9 @@ def write_status_json(state: LocalWaitState):
 
 
 def upload_status_json_to_s3():
+    """
+    Uploads the local JSON file to S3 using the AWS CLI.
+    """
     command = [
         "aws",
         "s3",
@@ -161,61 +164,6 @@ def upload_status_json_to_s3():
         print(f"Uploaded {OUTPUT_JSON_PATH} to {S3_JSON_URI}")
     except subprocess.CalledProcessError as exc:
         print(f"Failed to upload JSON to S3: {exc}")
-    
-
-def post_event(
-    track_id: int,
-    event_type: str,
-    box_h: int | None = None,
-    notes: str | None = None,
-):
-    """
-    Sends a line_enter or pickup event to the backend.
-    """
-
-    payload = {
-        "camera_id": str(CAMERA_ID),
-        "track_id": int(track_id),
-        "event_type": str(event_type),
-        "timestamp": datetime.now(timezone.utc).isoformat(),
-        "box_height": int(box_h) if box_h is not None else None,
-        "notes": str(notes) if notes is not None else None,
-    }
-
-    try:
-        response = requests.post(
-            API_EVENTS_URL,
-            json=payload,
-            timeout=2,
-        )
-        response.raise_for_status()
-        print(f"Sent event: {payload}")
-    except requests.RequestException as exc:
-        print(f"Failed to send event: {exc}")
-
-
-def post_queue_count(queue_count: int):
-    """
-    Sends the current number of people in line to the backend.
-    This number comes from QueueManager.
-    """
-
-    payload = {
-        "camera_id": str(CAMERA_ID),
-        "timestamp": datetime.now(timezone.utc).isoformat(),
-        "queue_count": int(queue_count),
-    }
-
-    try:
-        response = requests.post(
-            QUEUE_COUNT_URL,
-            json=payload,
-            timeout=2,
-        )
-        response.raise_for_status()
-        print(f"Sent queue count: {queue_count}")
-    except requests.RequestException as exc:
-        print(f"Failed to send queue count: {exc}")
 
 
 def keypoint_visible(keypoints, index: int, min_conf: float = 0.3) -> bool:
@@ -288,8 +236,13 @@ def main():
     if not cap.isOpened():
         raise RuntimeError(f"Could not open video source: {VIDEO_SOURCE}")
 
+    # EventMemory prevents duplicate events for the same track_id within a short time window.
     memory = EventMemory()
     last_queue_count_post = 0.0
+
+    # Initialize local state and event memory.
+    local_state = LocalWaitState()
+    last_s3_upload = 0.0
 
     print("Starting vision worker with QueueManager.")
     print("Press q or Esc to quit.")
@@ -311,7 +264,7 @@ def main():
         now = time.time()
 
         if now - last_queue_count_post >= QUEUE_COUNT_POST_INTERVAL_SECONDS:
-            post_queue_count(queue_count)
+            local_state.update_queue_count(queue_count)
             last_queue_count_post = now
 
         # Run YOLO pose tracking separately for line_enter and pickup events.
@@ -380,12 +333,8 @@ def main():
                             now,
                         )
                     ):
-                        post_event(
-                            track_id=track_id,
-                            event_type="line_enter",
-                            box_h=h,
-                            notes="Person center entered line region.",
-                        )
+                        event_time = datetime.now(timezone.utc)
+                        local_state.record_line_enter(track_id, event_time)
                         memory.mark_line_enter(track_id, now)
 
                     # Event 2: same tracked person reaches pickup region.
@@ -399,15 +348,8 @@ def main():
                             now,
                         )
                     ):
-                        post_event(
-                            track_id=track_id,
-                            event_type="pickup",
-                            box_h=h,
-                            notes=(
-                                "Wrist entered pickup region and person "
-                                "was within valid box-height range."
-                            ),
-                        )
+                        event_time = datetime.now(timezone.utc)
+                        local_state.record_pickup(track_id, event_time)
                         memory.mark_pickup(track_id, now)
 
                     # Draw debugging info from pose tracking.
@@ -437,6 +379,12 @@ def main():
                         color,
                         2,
                     )
+        
+        # Periodically write local state to JSON and upload to S3.
+        if now - last_s3_upload >= S3_UPLOAD_INTERVAL_SECONDS:
+            write_status_json(local_state)
+            upload_status_json_to_s3()
+            last_s3_upload = now
 
         cv2.imshow("Vision Worker Debug", display_frame)
 
