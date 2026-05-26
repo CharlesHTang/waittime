@@ -12,7 +12,6 @@ from vision.config import (
     MODEL_PATH,
     POSE_MODEL_PATH,
     VIDEO_SOURCE,
-    CAMERA_ID,
     CONFIDENCE_THRESHOLD,
     LINE_REGION,
     PICKUP_REGION,
@@ -122,7 +121,7 @@ class LocalWaitState:
 
         return None
 
-    def to_json_data(self, store_id: str, camera_id: str):
+    def to_json_data(self, store_id: str):
         return {
             "store_id": store_id,
             "timestamp": datetime.now(timezone.utc).isoformat(),
@@ -135,7 +134,7 @@ def write_status_json(state: LocalWaitState):
     """
     Writes the current wait status to a local JSON file, which can then be uploaded to S3.
     """
-    data = state.to_json_data(STORE_ID, CAMERA_ID)
+    data = state.to_json_data(STORE_ID)
 
     with open(OUTPUT_JSON_PATH, "w") as f:
         json.dump(data, f, indent=2)
@@ -217,6 +216,155 @@ def draw_point(frame, point, label, color):
     )
 
 
+def get_queue_count(queue_manager, frame) -> int:
+    """
+    Runs the QueueManager on the given frame to get the live queue count.
+    """
+    queue_frame = frame.copy()
+    queue_results = queue_manager(queue_frame)
+
+    return queue_results.queue_count if hasattr(queue_results, "queue_count") else 0
+
+
+def run_pose_tracking(pose_model, frame):
+    """
+    Run YOLO pose tracking for line_enter and pickup events.
+    """
+    pose_results = pose_model.track(
+        source=frame,
+        persist=True,
+        tracker=TRACKER,
+        conf=CONFIDENCE_THRESHOLD,
+        classes=[PERSON_CLASS_ID],
+        verbose=False,
+    )
+
+    if not pose_results:
+        return None
+
+    return pose_results[0]
+
+
+def process_pose_results(result, display_frame, memory, local_state, now):
+    # Draw regions manually so they are always visible.
+    draw_polygon(display_frame, LINE_REGION, "Line Region", (255, 0, 0))
+    draw_polygon(display_frame, PICKUP_REGION, "Pickup Region", (255, 0, 255))
+
+    if result is None:
+        return
+
+    if result.boxes is None or result.keypoints is None:
+        return
+
+    boxes_xyxy = result.boxes.xyxy.cpu().numpy()
+    keypoints_all = result.keypoints.data.cpu().numpy()
+
+    track_ids = result.boxes.id
+
+    if track_ids is None:
+        return
+
+    for box, keypoints, raw_track_id in zip(boxes_xyxy, keypoints_all, track_ids):
+        process_person_detection(box=box, keypoints=keypoints, raw_track_id=raw_track_id, display_frame=display_frame, memory=memory, local_state=local_state, now=now)
+
+
+def process_person_detection(box, keypoints, raw_track_id, display_frame, memory, local_state, now):
+    track_id = int(raw_track_id)
+
+    x1, y1, x2, y2 = map(int, box)
+    person_box = (x1, y1, x2, y2)
+
+    center = box_center(person_box)
+    h = box_height(person_box)
+
+    draw_point(display_frame, center, "center", (255, 255, 255))
+
+    in_line_region = point_in_polygon(center, LINE_REGION)
+
+    valid_pickup_distance = box_in_valid_height_range(
+        person_box,
+        MIN_BOX_HEIGHT,
+        MAX_BOX_HEIGHT,
+    )
+
+    wrist_in_pickup = wrist_inside_pickup_region(keypoints)
+
+    if keypoint_visible(keypoints, LEFT_WRIST):
+        left_wrist = get_keypoint_xy(keypoints, LEFT_WRIST)
+        draw_point(display_frame, left_wrist, "L wrist", (0, 255, 255))
+
+    if keypoint_visible(keypoints, RIGHT_WRIST):
+        right_wrist = get_keypoint_xy(keypoints, RIGHT_WRIST)
+        draw_point(display_frame, right_wrist, "R wrist", (0, 165, 255))
+
+    # Event 1: person enters line region.
+    if (
+        in_line_region
+        and track_id not in memory.active_tracks
+        and memory.can_emit(
+            memory.last_line_enter,
+            track_id,
+            now,
+        )
+    ):
+        event_time = datetime.now(timezone.utc)
+        local_state.record_line_enter(track_id, event_time)
+        memory.mark_line_enter(track_id, now)
+
+    # Event 2: same tracked person reaches pickup region.
+    if (
+        track_id in memory.active_tracks
+        and wrist_in_pickup
+        and valid_pickup_distance
+        and memory.can_emit(
+            memory.last_pickup,
+            track_id,
+            now,
+        )
+    ):
+        event_time = datetime.now(timezone.utc)
+        local_state.record_pickup(track_id, event_time)
+        memory.mark_pickup(track_id, now)
+
+    draw_person_debug_box(
+        display_frame,
+        person_box,
+        track_id,
+        h,
+        in_line_region,
+        wrist_in_pickup,
+        memory,
+    )
+
+
+def draw_person_debug_box(frame, box, track_id, height, in_line_region, wrist_in_pickup, memory: EventMemory):
+    """
+    Draws a bounding box around the detected person, along with debug info like track ID, box height, and whether they are in the line or pickup regions.
+    """
+    x1, y1, x2, y2 = box
+
+    is_active = track_id in memory.active_tracks
+    color = (0, 255, 0) if is_active else (0, 0, 255)
+
+    cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
+
+    label = (
+        f"ID {track_id} | h={height} | "
+        f"line={in_line_region} | "
+        f"pickup={wrist_in_pickup}"
+    )
+
+    cv2.putText(
+        frame,
+        label,
+        (x1, max(y1 - 10, 25)),
+        cv2.FONT_HERSHEY_SIMPLEX,
+        0.55,
+        color,
+        2,
+    )
+
+
 def main():
     # QueueManager counts people in line.
     queue_manager = solutions.QueueManager(
@@ -254,132 +402,20 @@ def main():
             print("Failed to read frame.")
             break
 
-        # Run QueueManager on a copy so it can annotate/count the line region.
-        queue_frame = frame.copy()
-        queue_results = queue_manager(queue_frame)
 
-        queue_count = queue_results.queue_count if hasattr(queue_results, "queue_count") else 0
         display_frame = frame.copy()
-
         now = time.time()
+
+        queue_count = get_queue_count(queue_manager, frame)
 
         if now - last_queue_count_post >= QUEUE_COUNT_POST_INTERVAL_SECONDS:
             local_state.update_queue_count(queue_count)
             last_queue_count_post = now
 
-        # Run YOLO pose tracking separately for line_enter and pickup events.
-        pose_results = pose_model.track(
-            source=frame,
-            persist=True,
-            tracker=TRACKER,
-            conf=CONFIDENCE_THRESHOLD,
-            classes=[PERSON_CLASS_ID],
-            verbose=False,
-        )
+        result = run_pose_tracking(pose_model, frame)
 
-        result = pose_results[0]
+        process_pose_results(result=result, display_frame=display_frame, memory=memory, local_state=local_state, now=now)
 
-        # Draw regions manually so they are always visible.
-        draw_polygon(display_frame, LINE_REGION, "Line Region", (255, 0, 0))
-        draw_polygon(display_frame, PICKUP_REGION, "Pickup Region", (255, 0, 255))
-
-        if result.boxes is not None and result.keypoints is not None:
-            boxes_xyxy = result.boxes.xyxy.cpu().numpy()
-            keypoints_all = result.keypoints.data.cpu().numpy()
-
-            track_ids = result.boxes.id
-
-            if track_ids is not None:
-                for box, keypoints, raw_track_id in zip(
-                    boxes_xyxy,
-                    keypoints_all,
-                    track_ids,
-                ):
-                    track_id = int(raw_track_id)
-
-                    x1, y1, x2, y2 = map(int, box)
-                    person_box = (x1, y1, x2, y2)
-
-                    center = box_center(person_box)
-                    h = box_height(person_box)
-
-                    draw_point(display_frame, center, "center", (255, 255, 255))
-
-                    in_line_region = point_in_polygon(center, LINE_REGION)
-
-                    valid_pickup_distance = box_in_valid_height_range(
-                        person_box,
-                        MIN_BOX_HEIGHT,
-                        MAX_BOX_HEIGHT,
-                    )
-
-                    wrist_in_pickup = wrist_inside_pickup_region(keypoints)
-
-                    if keypoint_visible(keypoints, LEFT_WRIST):
-                        left_wrist = get_keypoint_xy(keypoints, LEFT_WRIST)
-                        draw_point(display_frame, left_wrist, "L wrist", (0, 255, 255))
-
-                    if keypoint_visible(keypoints, RIGHT_WRIST):
-                        right_wrist = get_keypoint_xy(keypoints, RIGHT_WRIST)
-                        draw_point(display_frame, right_wrist, "R wrist", (0, 165, 255))
-
-                    # Event 1: person enters line region.
-                    if (
-                        in_line_region
-                        and track_id not in memory.active_tracks
-                        and memory.can_emit(
-                            memory.last_line_enter,
-                            track_id,
-                            now,
-                        )
-                    ):
-                        event_time = datetime.now(timezone.utc)
-                        local_state.record_line_enter(track_id, event_time)
-                        memory.mark_line_enter(track_id, now)
-
-                    # Event 2: same tracked person reaches pickup region.
-                    if (
-                        track_id in memory.active_tracks
-                        and wrist_in_pickup
-                        and valid_pickup_distance
-                        and memory.can_emit(
-                            memory.last_pickup,
-                            track_id,
-                            now,
-                        )
-                    ):
-                        event_time = datetime.now(timezone.utc)
-                        local_state.record_pickup(track_id, event_time)
-                        memory.mark_pickup(track_id, now)
-
-                    # Draw debugging info from pose tracking.
-                    is_active = track_id in memory.active_tracks
-                    color = (0, 255, 0) if is_active else (0, 0, 255)
-
-                    cv2.rectangle(
-                        display_frame,
-                        (x1, y1),
-                        (x2, y2),
-                        color,
-                        2,
-                    )
-
-                    label = (
-                        f"ID {track_id} | h={h} | "
-                        f"line={in_line_region} | "
-                        f"pickup={wrist_in_pickup}"
-                    )
-
-                    cv2.putText(
-                        display_frame,
-                        label,
-                        (x1, max(y1 - 10, 25)),
-                        cv2.FONT_HERSHEY_SIMPLEX,
-                        0.55,
-                        color,
-                        2,
-                    )
-        
         # Periodically write local state to JSON and upload to S3.
         if now - last_s3_upload >= S3_UPLOAD_INTERVAL_SECONDS:
             write_status_json(local_state)
