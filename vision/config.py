@@ -48,3 +48,12 @@ TRACKER = "bytetrack.yaml"
 
 # Queue Management
 MODEL_PATH = "yolo26n.pt"
+
+# S3 setup
+STORE_ID = "store1"
+
+OUTPUT_JSON_PATH = f"{STORE_ID}data.json"
+
+S3_JSON_URI = f"s3://nu-s26-dtc2-s33t4-website-data/{STORE_ID}data.json"
+
+S3_UPLOAD_INTERVAL_SECONDS = 3.0
