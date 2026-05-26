@@ -8,8 +8,6 @@ VIDEO_SOURCE = 0
 # Later, for IP camera:
 # VIDEO_SOURCE = "rtsp://username:password@CAMERA_IP:554/stream1"
 
-API_EVENTS_URL = "http://127.0.0.1:8000/api/events"
-QUEUE_COUNT_URL = "http://127.0.0.1:8000/api/queue-count"
 QUEUE_COUNT_POST_INTERVAL_SECONDS = 1.0
 
 CAMERA_ID = "camera_1"
