@@ -5,8 +5,8 @@ POSE_MODEL_PATH = "yolo26n-pose.pt"
 # For webcam testing:
 VIDEO_SOURCE = 0
 
-# Later, for IP camera:
-# VIDEO_SOURCE = "rtsp://username:password@CAMERA_IP:554/stream1"
+# For IP camera:
+VIDEO_SOURCE = "rtsp://admin:dtc2s2026@192.168.1.108:554/cam/realmonitor?channel=1&subtype=0"
 
 QUEUE_COUNT_POST_INTERVAL_SECONDS = 1.0
 
