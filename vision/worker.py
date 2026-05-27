@@ -4,6 +4,8 @@ from datetime import datetime, timezone, timedelta
 import time
 import json
 import subprocess
+import os
+os.environ["OPENCV_FFMPEG_CAPTURE_OPTIONS"] = "rtsp_transport;tcp"
 
 import cv2
 from ultralytics import YOLO, solutions
