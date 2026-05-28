@@ -4,6 +4,7 @@ from datetime import datetime, timezone, timedelta
 import time
 import json
 import subprocess
+import threading
 import os
 os.environ["OPENCV_FFMPEG_CAPTURE_OPTIONS"] = "rtsp_transport;tcp"
 
@@ -163,8 +164,36 @@ def upload_status_json_to_s3():
     try:
         subprocess.run(command, check=True)
         print(f"Uploaded {OUTPUT_JSON_PATH} to {S3_JSON_URI}")
+    except FileNotFoundError:
+        print("Failed to upload JSON: AWS CLI is not installed or not in PATH.")
     except subprocess.CalledProcessError as exc:
         print(f"Failed to upload JSON to S3: {exc}")
+
+
+upload_in_progress = False
+upload_lock = threading.Lock()
+
+
+def upload_status_json_to_s3_async():
+    global upload_in_progress
+
+    with upload_lock:
+        if upload_in_progress:
+            return
+
+        upload_in_progress = True
+
+    def worker():
+        global upload_in_progress
+
+        try:
+            upload_status_json_to_s3()
+        finally:
+            with upload_lock:
+                upload_in_progress = False
+
+    thread = threading.Thread(target=worker, daemon=True)
+    thread.start()
 
 
 def keypoint_visible(keypoints, index: int, min_conf: float = 0.3) -> bool:
@@ -421,7 +450,7 @@ def main():
         # Periodically write local state to JSON and upload to S3.
         if now - last_s3_upload >= S3_UPLOAD_INTERVAL_SECONDS:
             write_status_json(local_state)
-            upload_status_json_to_s3()
+            upload_status_json_to_s3_async()
             last_s3_upload = now
 
         cv2.imshow("Vision Worker Debug", display_frame)
