@@ -410,7 +410,8 @@ def main():
     # Pose model is used for wrist-in-pickup-region logic.
     pose_model = YOLO(POSE_MODEL_PATH)
 
-    cap = cv2.VideoCapture(VIDEO_SOURCE)
+    cap = cv2.VideoCapture(VIDEO_SOURCE, cv2.CAP_FFMPEG)
+    cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
 
     if not cap.isOpened():
         raise RuntimeError(f"Could not open video source: {VIDEO_SOURCE}")
