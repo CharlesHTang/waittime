@@ -22,7 +22,7 @@ jobs:
 
       - name: Upload website
         run: |
-          aws s3 sync website s3://nu-s26-dtc2-s33t4-website-data
+          aws s3 sync website s3://nu-s26-dtc2-s33t4-website-data --exclude "store1data.json"
 
       - name: Invalidate CloudFront cache
         run: |
