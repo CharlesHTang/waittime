@@ -50,4 +50,5 @@ async function loadData() {
     }
 }
 
+loadData();
 setInterval(loadData, 30_000);
