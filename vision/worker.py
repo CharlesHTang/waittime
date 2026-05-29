@@ -405,6 +405,7 @@ def main():
         conf=CONFIDENCE_THRESHOLD,
         classes=[PERSON_CLASS_ID],
         show=False,
+        verbose=False,
     )
 
     # Pose model is used for wrist-in-pickup-region logic.
@@ -438,9 +439,8 @@ def main():
         display_frame = frame.copy()
         now = time.time()
 
-        queue_count = get_queue_count(queue_manager, frame)
-
         if now - last_queue_count_post >= QUEUE_COUNT_POST_INTERVAL_SECONDS:
+            queue_count = get_queue_count(queue_manager, frame)
             local_state.update_queue_count(queue_count)
             last_queue_count_post = now
 
