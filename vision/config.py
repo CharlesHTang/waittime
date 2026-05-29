@@ -52,4 +52,4 @@ OUTPUT_JSON_PATH = f"{STORE_ID}data.json"
 
 S3_JSON_URI = f"s3://nu-s26-dtc2-s33t4-website-data/{STORE_ID}data.json"
 
-S3_UPLOAD_INTERVAL_SECONDS = 10.0
+S3_UPLOAD_INTERVAL_SECONDS = 30.0
