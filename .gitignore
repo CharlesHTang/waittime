@@ -5,3 +5,4 @@ AWSCLIV2.pkg
 vision/__pycache__/
 yolo26n-pose.pt
 yolo26n.pt
+store1data.json
