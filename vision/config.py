@@ -1,6 +1,7 @@
 # vision/config.py
 
 POSE_MODEL_PATH = "yolo26n-pose.pt"
+LISAS_MODEL_PATH = "lisas_order_detector.pt"
 
 # For webcam testing:
 VIDEO_SOURCE = 0
