@@ -28,6 +28,10 @@ from vision.config import (
     S3_JSON_URI,
     S3_UPLOAD_INTERVAL_SECONDS,
     STORE_ID,
+    LISAS_MODEL_PATH,
+    LISAS_CONFIDENCE_THRESHOLD,
+    FOOD_NEAR_WRIST_PIXELS,
+    LISAS_DETECTION_INTERVAL_SECONDS,
 )
 
 from vision.geometry import (
@@ -247,6 +251,76 @@ def draw_point(frame, point, label, color):
     )
 
 
+def run_lisas_detection(lisas_model, frame):
+    """
+    Runs Lisa's order detector and returns detected order boxes.
+    """
+    results = lisas_model.predict(
+        source=frame,
+        imgsz=640,
+        conf=LISAS_CONFIDENCE_THRESHOLD,
+        verbose=False,
+    )
+
+    if not results:
+        return []
+
+    result = results[0]
+
+    if result.boxes is None or len(result.boxes) == 0:
+        return []
+
+    boxes = result.boxes.xyxy.cpu().numpy()
+
+    return [tuple(map(int, box)) for box in boxes]
+
+
+def distance_between_points(p1, p2):
+    x1, y1 = p1
+    x2, y2 = p2
+
+    return ((x1 - x2) ** 2 + (y1 - y2) ** 2) ** 0.5
+
+
+def wrist_near_lisas_order(keypoints, lisas_boxes) -> bool:
+    """
+    Returns True if either wrist is close to a detected Lisa's order.
+    """
+    wrist_points = []
+
+    if keypoint_visible(keypoints, LEFT_WRIST):
+        wrist_points.append(get_keypoint_xy(keypoints, LEFT_WRIST))
+
+    if keypoint_visible(keypoints, RIGHT_WRIST):
+        wrist_points.append(get_keypoint_xy(keypoints, RIGHT_WRIST))
+
+    for wrist in wrist_points:
+        for lisas_box in lisas_boxes:
+            order_center = box_center(lisas_box)
+
+            if distance_between_points(wrist, order_center) <= FOOD_NEAR_WRIST_PIXELS:
+                return True
+
+    return False
+
+
+def draw_lisas_boxes(frame, lisas_boxes):
+    for box in lisas_boxes:
+        x1, y1, x2, y2 = box
+
+        cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 255), 2)
+
+        cv2.putText(
+            frame,
+            "lisas_order",
+            (x1, max(y1 - 10, 25)),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.6,
+            (0, 255, 255),
+            2,
+        )
+
+
 def get_queue_count(queue_manager, frame) -> int:
     """
     Runs the QueueManager on the given frame to get the live queue count.
@@ -276,7 +350,7 @@ def run_pose_tracking(pose_model, frame):
     return pose_results[0]
 
 
-def process_pose_results(result, display_frame, memory, local_state, now):
+def process_pose_results(result, display_frame, memory, local_state, now, lisas_boxes):
     # Draw regions manually so they are always visible.
     draw_polygon(display_frame, LINE_REGION, "Line Region", (255, 0, 0))
     draw_polygon(display_frame, PICKUP_REGION, "Pickup Region", (255, 0, 255))
@@ -296,10 +370,10 @@ def process_pose_results(result, display_frame, memory, local_state, now):
         return
 
     for box, keypoints, raw_track_id in zip(boxes_xyxy, keypoints_all, track_ids):
-        process_person_detection(box=box, keypoints=keypoints, raw_track_id=raw_track_id, display_frame=display_frame, memory=memory, local_state=local_state, now=now)
+        process_person_detection(box=box, keypoints=keypoints, raw_track_id=raw_track_id, display_frame=display_frame, memory=memory, local_state=local_state, now=now, lisas_boxes=lisas_boxes)
 
 
-def process_person_detection(box, keypoints, raw_track_id, display_frame, memory, local_state, now):
+def process_person_detection(box, keypoints, raw_track_id, display_frame, memory, local_state, now, lisas_boxes):
     track_id = int(raw_track_id)
 
     x1, y1, x2, y2 = map(int, box)
@@ -319,6 +393,7 @@ def process_person_detection(box, keypoints, raw_track_id, display_frame, memory
     )
 
     wrist_in_pickup = wrist_inside_pickup_region(keypoints)
+    wrist_near_food = wrist_near_lisas_order(keypoints, lisas_boxes)
 
     if keypoint_visible(keypoints, LEFT_WRIST):
         left_wrist = get_keypoint_xy(keypoints, LEFT_WRIST)
@@ -346,6 +421,7 @@ def process_person_detection(box, keypoints, raw_track_id, display_frame, memory
     if (
         track_id in memory.active_tracks
         and wrist_in_pickup
+        and wrist_near_food
         and valid_pickup_distance
         and memory.can_emit(
             memory.last_pickup,
@@ -411,6 +487,9 @@ def main():
     # Pose model is used for wrist-in-pickup-region logic.
     pose_model = YOLO(POSE_MODEL_PATH)
 
+    # Lisa's model is used for food detection
+    lisas_model = YOLO(LISAS_MODEL_PATH)
+
     cap = cv2.VideoCapture(VIDEO_SOURCE)
     cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
 
@@ -419,14 +498,17 @@ def main():
 
     # EventMemory prevents duplicate events for the same track_id within a short time window.
     memory = EventMemory()
-    last_queue_count_post = 0.0
 
     # Initialize local state and event memory.
     local_state = LocalWaitState()
-    last_s3_upload = 0.0
 
     print("Starting vision worker with QueueManager.")
     print("Press q or Esc to quit.")
+
+    last_s3_upload = 0.0
+    last_queue_count_post = 0.0
+    last_lisas_detection = 0.0
+    latest_lisas_boxes = []
 
     while True:
         success, frame = cap.read()
@@ -439,6 +521,12 @@ def main():
         display_frame = frame.copy()
         now = time.time()
 
+        if now - last_lisas_detection >= LISAS_DETECTION_INTERVAL_SECONDS:
+            latest_lisas_boxes = run_lisas_detection(lisas_model, frame)
+            last_lisas_detection = now
+
+        draw_lisas_boxes(display_frame, latest_lisas_boxes)
+
         if now - last_queue_count_post >= QUEUE_COUNT_POST_INTERVAL_SECONDS:
             queue_count = get_queue_count(queue_manager, frame)
             local_state.update_queue_count(queue_count)
@@ -446,7 +534,7 @@ def main():
 
         result = run_pose_tracking(pose_model, frame)
 
-        process_pose_results(result=result, display_frame=display_frame, memory=memory, local_state=local_state, now=now)
+        process_pose_results(result=result, display_frame=display_frame, memory=memory, local_state=local_state, now=now, lisas_boxes=latest_lisas_boxes)
 
         # Periodically write local state to JSON and upload to S3.
         if now - last_s3_upload >= S3_UPLOAD_INTERVAL_SECONDS:
