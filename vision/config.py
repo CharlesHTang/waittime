@@ -7,7 +7,7 @@ LISAS_MODEL_PATH = "lisas_order_detector.pt"
 VIDEO_SOURCE = 0
 
 # For IP camera:
-VIDEO_SOURCE = "rtsp://admin:dtc2s2026@192.168.1.108:554/cam/realmonitor?channel=1&subtype=0"
+# VIDEO_SOURCE = "rtsp://admin:dtc2s2026@192.168.1.108:554/cam/realmonitor?channel=1&subtype=0"
 
 QUEUE_COUNT_POST_INTERVAL_SECONDS = 2.0
 
@@ -54,3 +54,7 @@ OUTPUT_JSON_PATH = f"{STORE_ID}data.json"
 S3_JSON_URI = f"s3://nu-s26-dtc2-s33t4-website-data/{STORE_ID}data.json"
 
 S3_UPLOAD_INTERVAL_SECONDS = 30.0
+
+LISAS_CONFIDENCE_THRESHOLD = 0.30
+FOOD_NEAR_WRIST_PIXELS = 100
+LISAS_DETECTION_INTERVAL_SECONDS = 0.5
