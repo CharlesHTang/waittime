@@ -1,6 +1,7 @@
 # vision/config.py
 
 POSE_MODEL_PATH = "yolo26n-pose.pt"
+LISAS_MODEL_PATH = "lisas_order_detector.pt"
 
 # For webcam testing:
 VIDEO_SOURCE = 0
@@ -53,3 +54,7 @@ OUTPUT_JSON_PATH = f"{STORE_ID}data.json"
 S3_JSON_URI = f"s3://nu-s26-dtc2-s33t4-website-data/{STORE_ID}data.json"
 
 S3_UPLOAD_INTERVAL_SECONDS = 30.0
+
+LISAS_CONFIDENCE_THRESHOLD = 0.35
+FOOD_NEAR_WRIST_PIXELS = 100
+LISAS_DETECTION_INTERVAL_SECONDS = 0.5
