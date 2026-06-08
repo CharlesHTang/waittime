@@ -76,6 +76,519 @@
                 </tr>
             </tbody>
         </table>
+        <h3>Future Development</h3>
+        <p>
+            In the future, we will use a Raspberry Pi or similar laptop to stay connected to our camera when we are not present and train our algorithm with more pictures.
+        </p>
+
+        <h2>Introduction</h2>
+        <p>
+            At Northwestern University, there are various places on campus outside of the dining halls. On the north side of campus, Lisa’s Cafe offers Mexican food during the evening. In Norris, many options are available during class hours, from sandwiches to pizza to acai bowls. On the south side of campus, Fran’s Cafe offers burgers and chicken tenders during the evening. Some of these stores have food that can be purchased using “meal exchanges”, which are part of several of the university’s meal plans. Due to offering consistent options and quality of food, these stores are very popular among students for eating all meals.
+        </p>
+        <p>
+            The main issue students face is the unpredictability of the wait times at these stores. Meal exchange stores either have daytime hours (8am to 6pm) or nighttime hours (6pm to 1am). Most classes end at the 50 minute mark of every hour. This causes many students to rush to Norris to eat around the same time (See Appendix E). As a result, stores can go from not very busy to packed in a matter of minutes. Students typically organize their schedule in such a way that they only have 30 minutes to an hour to eat their food. If students arrive at their favorite store too late, they may be unable to get their food before their next class. At night, Lisa’s Cafe and Fran’s Cafe are very popular for a late night snack. However, fraternity parties, K-dance performances, and various other events around campus make the wait times at these places unpredictable from hour to hour. As a result, students may make a long walk to one of these stores only to find the line is too long for the walk to be worth it.
+        </p>
+        <p>
+            Our mission is to reduce the frustration students feel when waiting in line at meal exchange stores. Ideally, our design reduces the wait time of the lines and gives students a better sense of how long they will wait for their food. The following sections describe the user in more detail, the components of the final design, and future developments that could enhance the design.
+        </p>
+
+        <h2>Users and Requirements</h2>
+        <h3>Main Users of the Design</h3>
+        <h4>Northwestern Students</h4>
+        <p>
+            A majority of the students interacting with our design are first and second year students. Many students only section off one hour of their day to eat their lunch and walk to class. Depending on the wait time of each store, a student might not have enough time to order their food and make it to class on time. At nighttime, nearby fraternity parties or club events can bring in many people during otherwise normal hours. The extra commotion this causes can make waiting for food extra unpleasant for some, especially after a long day of studying. These students would interact with the design by watching the live feed of the stores to see if there are a lot of people eating and approximately how long it would take them to receive their food.
+        </p>
+        <h3>Secondary Users</h3>
+        <h4>Meal Exchange Stores Staff</h4>
+        <p>
+            The staff at these stores would not directly interact with NU waittime, but they would appear on camera and must be recognized by our system so NU waittime knows when food has been received by the customer. Even though the workers would not interact with the product, they still would benefit from our design, as students would likely go to other meal exchange stores if the line was too long (See Appendix A). Below is a table of all of the meal exchange locations and their hours.
+        </p>
+         <table>
+            <caption>Table 2. Meal Exchange Locations and Hours</caption>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Location</th>
+                    <th>Hours</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>847 Burger</td>
+                    <td>Norris</td>
+                    <td>8:00am - 6:00pm</td>
+                </tr>
+                <tr>
+                    <td>Buen Dia</td>
+                    <td>Norris</td>
+                    <td>8:00am - 6:00pm</td>
+                </tr>
+                <tr>
+                    <td>Forno Pizza Co.</td>
+                    <td>Norris</td>
+                    <td>8:00am - 8:00pm</td>
+                </tr>
+                <tr>
+                    <td>Shake Smart</td>
+                    <td>Norris</td>
+                    <td>8:00am - 6:00pm</td>
+                </tr>
+                <tr>
+                    <td>Wildcat Deli</td>
+                    <td>Norris</td>
+                    <td>8:00am - 6:00pm</td>
+                </tr>
+                <tr>
+                    <td>Fran’s Cafe</td>
+                    <td>Willard Residence College</td>
+                    <td>6:00pm - 1:00am</td>
+                </tr>
+                <tr>
+                    <td>Lisa’s Cafe</td>
+                    <td>Slivka Residence College</td>
+                    <td>6:00pm - 1:00am</td>
+                </tr>
+            </tbody>
+        </table>
+        <h3>Major Requirements</h3>
+        <h4>Line Information</h4>
+        <p>
+            Students with class must know how long the lines are to decide if they have the time to eat at a certain store or not. Also, the number of people in the store can be equally important to know if a store has a quiet atmosphere or a loud one. Our design must accurately record both the wait time and the number of people.
+        </p>
+        <h4>Accessibility</h4>
+        <p>
+            Any student interested in purchasing food must have access to the wait time estimate and number of people in line. That means the information is both free for every user and must be quickly found online for everyone (See Appendix F).
+        </p>
+        <h4>Privacy</h4>
+        <p>
+            Because we are tracking when students are picking up their food, there is inevitably some concern over if students’ privacy is being protected. Our design must not collect data about students or footage showing students ordering food (See Appendix G and H).
+        </p>
+        <p>
+            More information about the requirements can be found in Appendix I.
+        </p>
+
+        <h2>Design Concept and Rationale</h2>
+        <h3>Camera and Physical Design/Constraints</h3>
+        <p>
+            Our physical system consists of a Real Time Streaming Protocol (RTSP) Internet Protocol (IP) Power-over-Ethernet (PoE) camera, a PoE injector, and Ethernet cables. The camera needed to have RTSP and IP enabled because without it, we would not be able to track the line in real time via the Internet, which was necessary for our algorithm (outlined below) to work. We chose to use a camera with PoE capabilities because PoE’s basic function is to both power and connect the camera to the Internet via Ethernet cable. Additionally, using a PoE camera allowed us to bypass any apps that the camera companies maintained once we set up the camera. This was important because ethically speaking, we did not want to store a video recording of anyone in the cloud, in an app, or locally on a drive. Furthermore, using PoE ensured that we would not have any trouble connecting to the camera because the camera would be able to stream to the laptop without needing to be connected to the same wireless network as the laptop. We also made sure that our camera was wide-angle so that we could accommodate the layout of Lisa’s or Shakesmart. Lisa’s has pillars obstructing view of the line at some points, which would have made it more difficult to position the camera if the camera was not wide-angle. The Shakesmart line ends at an angle, which means to have all of the line in the camera’s view, it has to be placed at a certain spot in the open layout of Shakesmart, which would not be possible to achieve without a wide-angle camera.
+        </p>
+        <h3>YOLO Data Processing/User Interface</h3>
+        <p>
+            TODO
+        </p>
+
+        <h2>Future Development</h2>
+        <h3>Raspberry Pi</h3>
+        <p>
+            Currently, our design uses one of our personal computers to track the people in line due to time and money constraints (See Appendix J). This means for NU Waittime to work, one of us must be present at a store at all times. In the future, we would have a computer we can leave at a meal exchange store at all times. A Raspberry Pi would be the cheapest way to achieve this.
+        </p>
+        <h3>Better Detection Algorithm</h3>
+        <p>
+            Our tracking algorithm works by testing whether a user’s wrists appear in the “pickup zone”. However, this does not account for the depth of where the user is. To clarify, a person could stand in front of the pickup zone and be registered as receiving their food, even if they are not in the zone. In addition, the model could be trained more to better detect food from meal exchange stores. Currently, the algorithm has been trained using 100 different pictures of food from Lisa’s Cafe. This is not enough for the camera to consistently recognize the food. In addition, people’s hands are commonly mislabeled as food, creating false positives that would affect our data. In the future, our model would be trained with more pictures and with food from other stores.
+        </p>
+        <h3>User Testing</h3>
+        <p>
+            Our design will primarily be tested in Lisa’s Cafe, a nighttime hour store in the North Campus of Northwestern University. Due to its location near fraternity houses and its late hours, the flow of people will be different than it will be in other stores. Thus, it's possible our design will perform differently in different stores. In addition, it's important to find out where our design would need to be placed in each meal exchange store. Our current design may not accommodate the layout of every store. In future developments we would further look into these questions.
+        </p>
+
+        <h2>Conclusion</h2>
+        <p>
+            To summarize, our design meets the needs of Northwestern students by informing them of the average wait time and number of students in meal exchange stores. Our prototype accomplishes this using:
+        </p>
+        <ul>
+            <li>Camera with 132 degree viewing angle and 98 ft range</li>
+            <li>YOLO image processing</li>
+            <li>Convenient website for students to access the line data</li>
+        </ul>
+        <p>
+            Students shouldn’t have to guess if they have time to eat their food or not. With our design, there is no more mystery in how long students have to wait.
+        </p>
+        <p>
+            Anyone hoping to implement this system in a store near them can build this for $93.48 in around 10 hours (See Appendix K).
+        </p>
+
+        <h2>References</h2>
+        <p>
+            [1]“Northwestern SSO,” Northwestern.edu, 2026. https://www-webofscience-com.turing.library.northwestern.edu/wos/diidw/full-record/DIIDW:2021931371 (accessed Jun. 03, 2026).‌
+        </p>
+        <p>
+            [2]“Northwestern SSO,” Northwestern.edu, 2026. https://www-webofscience-com.turing.library.northwestern.edu/wos/diidw/full-record/DIIDW:201668159R (accessed Jun. 03, 2026).
+        </p>
+        <p>
+            [3]“Northwestern SSO,” Northwestern.edu, 2026. https://www-webofscience-com.turing.library.northwestern.edu/wos/diidw/full-record/DIIDW:2021B2157P (accessed Jun. 03, 2026).
+        </p>
+        <p>
+            [4]“Northwestern SSO,” Northwestern.edu, 2026. https://www-webofscience-com.turing.library.northwestern.edu/wos/diidw/full-record/DIIDW:202523611L (accessed Jun. 03, 2026).
+        </p>
+        <p>
+            [5]“Northwestern SSO,” Northwestern.edu, 2026. https://www-webofscience-com.turing.library.northwestern.edu/wos/diidw/full-record/DIIDW:2022E87482 (accessed Jun. 03, 2026).
+        </p>
+
+        <h2>Appendix A: Problem Definition Research</h2>
+        <p>Lisa's worker</p>
+        <ul>
+            <li>Short-staffed</li>
+            <li>Hard to keep people
+                <ul>
+                    <li>Lots of campus stores are odd, unappealing hours</li>
+                    <li>Lots of campus workers don’t live around here, are from far, like south side, west side, far north</li>
+                    <li>When they are hired for Lisa's specifically, aren’t told how loud and how crazy it is, and just generally aren’t told much about the actual job, and they find they can’t handle it</li>
+                    <li>If they find a job with morning/day hours, will try and get that opportunity</li>
+                    <li>All this combines to make it hard to keep people</li>
+                </ul>
+            </li>
+        </ul>
+        <p>Things Kit notices</p>
+        <ul>
+            <li>Quesadillas take forever to make</li>
+            <li>Wait times get really long at night</li>
+            <li>Line gets really long at night (can’t even purchase stuff without waiting)</li>
+            <li>Don’t know how long until your food is ready, kinda wastes your time (can’t leave because what if your food is ready while you are gone)</li>
+        </ul>
+        <p>Interviewee 1</p>
+        <ul>
+            <li>Really unpredictable, decide to gamble on whether line will be short enough to justify going</li>
+            <li>Quesadillas too slow</li>
+        </ul>
+        <p>Interviewee 2</p>
+        <ul>
+            <li>Really unpredictable, decide to gamble on whether line will be short enough to justify going</li>
+            <li>Lines so long you don’t think its worth it</li>
+            <li>Quesadillas too slow</li>
+        </ul>
+        <p>Interviewee 3</p>
+        <ul>
+            <li>Wants it applied to stuff to norris, don’t want to walk all the way to norris just to see giant line</li>
+        </ul>
+        <p>Interviewee 4</p>
+        <ul>
+            <li>Waiting in line is annoying and too long, so just by sandwich instead of waiting for food bc still need to eat</li>
+            <li>Quesadillas too slow</li>
+        </ul>
+        <p>Interviewee 5</p>
+        <ul>
+            <li>If Lisa's line is long enough, just go to frans (frans is better food, so if line is long enough its the same)</li>
+            <li>Quesadilla takes too long, only thing they like</li>
+            <li>Wants to separate dining dollar and meal exchange lines</li>
+            <li>Wants to post wait times or count ppl in line</li>
+        </ul>
+        <p>Interviewee 6</p>
+        <ul>
+            <li>If Lisa's line is long enough, just go to frans (frans is better food, so if line is long enough its the same)</li>
+            <li>Norris lines get INSANELY long, especially between class
+                <ul>
+                    <li>Norris is closest food often between classes</li>
+                    <li>Lose time in your day</li>
+                </ul>
+            </li>
+            <li>No way to tell before you show up</li>
+            <li>Nice to know if they have specific item</li>
+        </ul>
+        <p>Interviewee 7</p>
+        <ul>
+            <li>Very high traffic during certain hours
+                <ul>
+                    <li>Sometimes predictable, sometimes not</li>
+                </ul>
+            </li>
+        </ul>
+        <p>Interviewee 8</p>
+        <ul>
+            <li>Sometimes waits 25+ minutes even when ShakeSmart line only has a few people</li>
+        </ul>
+        <table>
+            <caption>Table 3: Lisa’s Cafe Main Complaints</caption>
+            <thead>
+                <tr>
+                    <th>Identifier</th>
+                    <th>Complains About a Specific Item</th>
+                    <th>Would Eat Elsewhere</th>
+                    <th>Unpredictable Length</th>
+                    <th>Other</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Interviewee 1</td>
+                    <td>x</td>
+                    <td></td>
+                    <td>x</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>Interviewee 2</td>
+                    <td>x</td>
+                    <td></td>
+                    <td>x</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>Interviewee 3</td>
+                    <td></td>
+                    <td></td>
+                    <td>x</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>Interviewee 4</td>
+                    <td>x</td>
+                    <td>x</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>Interviewee 5</td>
+                    <td></td>
+                    <td>x</td>
+                    <td>x</td>
+                    <td>x</td>
+                </tr>
+                <tr>
+                    <td>Interviewee 6</td>
+                    <td>x</td>
+                    <td>x</td>
+                    <td>x</td>
+                    <td>x</td>
+                </tr>
+                <tr>
+                    <td>Interviewee 7</td>
+                    <td></td>
+                    <td></td>
+                    <td>x</td>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2 class="center">Appendix B: Patent Research Summary</h2>
+        <p class="center">Section 33 with Profs. Kelly Coney and Andrew Skwish</p>
+        <p class="center">Team 4 Members: Colton Kelly, Kit Rady, Adrian Salonga & Charles Tang</p>
+        <p class="center">Date Written: May 6, 2026</p>
+        <h3>Background</h3>
+        <p>
+            In our white space project, our group decided to pursue a way to estimate wait times at the lines at meal exchange stores here at Northwestern. Naturally, one source of information to base our Northwestern version off of would be patents. Some solutions are entire sensor systems made for amusement parks attractions that display wait times, with directions to said attractions. Others are cellular-based location tracking programs that can tell how long a car is parked at an establishment, like a restaurant or parking garage. These apparatuses will not work for a restaurant full of people, not the way they currently are. We need to find a way to adapt.
+        </p>
+        <h3>Universal Studios Park Queue Time Tracker</h3>
+        <p>
+            This design consisted of processors that could handle multiple inputs and sustain multiple ways to monitor a single queue. After receiving the queue information outputs, that processor would predict how long the wait time would take based on said outputs and transfer that prediction to a display. Below is a flow chart that outlines this process.
+        </p>
+        <figure class="center">
+            <img src="website_image.png" style="width: 100%; max-width: 1000px">
+            <figcaption>Fig. 2.</figcaption>
+        </figure>
+        <h3>Wireless Wait Time Communication System</h3>
+        <p>
+            This patent involves tracking user data and creating an estimated wait time based on a user’s previous actions. First, the user’s device uses a network to send location data. The arrival at said location and the departure from said location are then stored in a memory device. The algorithms then calculate predicted and baseline values for the number of times going to that location. Wait time is then calculated based on the arrival time, and the algorithm also calculates the line exit time based on the wait time.
+        </p>
+        <figure class="center">
+            <img src="website_image.png" style="width: 100%; max-width: 1000px">
+            <figcaption>Fig. 3.</figcaption>
+        </figure>
+        <h3>Toyota Points-of-Interest Wait Time Prediction System</h3>
+        <p>
+            Toyota uses GPS at points-of-interest to determine wait times at these locations. The processor determines the current and historical occupancy in the area. Then, the processor runs an algorithm to determine the current and future waiting time at this point of interest, which is then output onto a user interface device.
+        </p>
+        <figure class="center">
+            <img src="website_image.png" style="width: 100%; max-width: 1000px">
+            <figcaption>Fig. 4.</figcaption>
+        </figure>
+
+        <h2 class="center">Appendix C: Competitive Benchmarking Research</h2>
+        <p class="center">Charles Tang</p>
+        <p class="center">DTC-2 Section 33</p>
+        <p class="center">Professor Coney and Professor Skwish</p>
+        <p class="center">May 28, 2026</p>
+        <p>
+            After completing initial patent research, our team conducted market research. We began by identifying organizations that display line wait times, such as Disneyland, the TSA, and Chick-fil-A. Many companies, however, do not disclose their methods for estimating wait times. So, we analyzed online forums and discussions and were able to identify how some of these companies solve the problem. Additionally, our team also researched companies that provide services for estimating wait times. By looking through their websites, we were able to discover their general approach. Market research helped inform our team of current solutions, and how they solve each aspect of the problem.
+        </p>
+        <p>This report presents three companies and summarizes the information available on how they calculate estimated wait times.</p>
+        <h3>1. Transportation Security Administration (TSA)</h3>
+        <p>
+            The TSA tracks and displays the wait times for its security checkpoints in airports. They estimate these wait times in a couple different ways.
+        </p>
+        <ul>
+            <li>Every hour, cards are given to people entering the line, and later returned to TSA officers at the end of the line (Figure 1). So, the TSA can track how long it took one person to go through the line. This information is then displayed on the My TSA app. However, this method does not accurately reflect wait times if line lengths are constantly changing [1]. Two Northwestern students we interviewed mentioned that TSA wait times are inaccurate in their experience, with the actual wait times being much longer than the estimated time.</li>
+        </ul>
+        <figure class="center">
+            <img src="website_image.png" style="width: 100%; max-width: 1000px">
+            <figcaption>Figure 5: TSA wait time card. [2]</figcaption>
+        </figure>
+        <ul>
+            <li>The TSA also has an automated system called the TSA’s Automated Wait Time (AWT) system. It utilizes information broadcasted from Bluetooth-enabled devices in the line to calculate wait times. The system works by collecting timestamped, hashed MAC addresses as individuals enter the line and exit the line. The difference in timestamps for each MAC address is then used to determine the wait time [3]. The estimated wait times are displayed on televisions in the terminal and on the My TSA app (Figure 2).</li>
+        </ul>
+        <figure class="center">
+            <img src="website_image.png" style="width: 100%; max-width: 1000px">
+            <figcaption>Figure 6: Televisions displaying TSA wait times. [4]</figcaption>
+        </figure>
+        <h3>2. Waitwhile</h3>
+        <p>
+            Waitwhile allows users to join a virtual line by scanning a QR code. The app displays the user’s place in line and their estimated wait time (Figure 3).
+        </p>
+        <figure class="center">
+            <img src="website_image.png" style="width: 100%; max-width: 1000px">
+            <figcaption>Figure 7: Waitwhile app. [5]</figcaption>
+        </figure>
+        <p>
+            Using the number of people in the line, Waitwhile computes the estimated wait time in two ways: Classic and Intelligent.
+        </p>
+        <ul>
+            <li>With Classic wait time estimation, the algorithm uses the store's inputs to determine the expected wait time for each individual in line. These inputs include historical wait times, the number of active staff, the type of service, and more [6].</li>
+            <li>Intelligent wait time estimation uses Waitwhile’s millions of data points to train a machine learning model to learn the patterns in wait times. Each data point contains information related to a visit such as time of day and party size. The model then predicts the estimated wait time based on the number of people in line [7].</li>
+        </ul>
+        <p>
+            Online reviews for Waitwhile are mixed. Many enterprise customers, such as customer service representatives from IKEA, like the software’s ease of use and real time updates. Some small business owners, however, say that the service is too expensive and that the company is unresponsive to emails requesting assistance. One dissatisfied customer, for example, was charged $1,800 for the year [8].
+        </p>
+        <h3>3. WaitTime</h3>
+        <p>
+            WaitTime uses cameras mounted above queues to interpret crowd conditions in real-time, so organizations know wait times and crowd densities. The system can monitor high volume entry and exits, un-structured queues, structured queues, and density measurements. The product is used by organizations like The Denver Broncos, Ohio State University, and The Miami Heat to understand how crowds are behaving at their stadiums [9].
+        </p>
+        <figure class="center">
+            <img src="website_image.png" style="width: 100%; max-width: 1000px">
+            <figcaption>Figure 8: WaitTime’s Queue Algorithm for un-structured queues. [9]</figcaption>
+        </figure>
+        <p>
+            There are no online reviews for WaitTime since it only serves large enterprise customers.
+        </p>
+        <h3>Conclusion</h3>
+        <p>
+            There are many existing products that track how long wait times are, with solutions ranging from machine learning algorithms to physical cards given to people in line. Based on our research, users are more satisfied with software solutions since they are highly accurate and provide real-time updates. However, most machine-learning services are expensive, so small businesses with only one location are hesitant to adopt them. Our team believes we can learn from existing solutions and improve on them to create a unique, cheap method to track wait times at Northwestern University’s meal-exchange stores. We see an opportunity to make a hands-off product that can help students be more aware of how long lines are at stores like Lisa’s and ShakeSmart.
+        </p>
+        <h3>References</h3>
+        <p>
+            [1] Government Accountability Office, “Aviation Security TSA Uses Current Assumptions and Airport-Specific Data for Its Staffing Process and Monitors Passenger Wait Times Using Daily Operations Data,” United States Government Accountability Office, https://www.gao.gov/assets/690/689896.pdf (accessed Apr. 30, 2026).
+        </p>
+        <p>
+            [2] sickbandnamealert, “TSA gave me this card to check the length of the line,” Reddit, https://www.reddit.com/r/mildlyinteresting/comments/1037d34/tsa_gave_me_this_card_to_check_the_length_of_the/ (accessed May 4, 2026).
+        </p>
+        <p>
+            [3] E. Chin, “Automated wait time (AWT) technology DHS/TSA/PIA-037,” Department of Homeland Security,
+        </p>
+        <p>
+            [4] H. Kanik, “Philadelphia International Airport begins displaying wait times for security checkpoints,” PhillyVoice, https://www.phillyvoice.com/philadelphia-international-airport-security-wait-times-phl/ (accessed May 3, 2026).
+        </p>
+        <p>
+            [5] “Queue management system: Automated Queue Software,” Waitwhile, https://waitwhile.com/solutions/queue-management-system/ (accessed May 3, 2026).
+        </p>
+        <p>
+            [6] L. Gagnon, “Classic Wait Time Estimation,” Waitwhile Help Center, https://help.waitwhile.com/en/articles/10048839-classic-wait-time-estimation (accessed May 3, 2026).
+        </p>
+        <p>
+            [7] C. Kokkinou, “Intelligent wait time estimation,” Waitwhile Help Center, https://help.waitwhile.com/en/articles/9980010-intelligent-wait-time-estimation (accessed May 3, 2026).
+        </p>
+        <p>
+            [8] “Waitwhile reviews 2026: Details, pricing, & features | G2,” G2, https://www.g2.com/products/waitwhile/reviews (accessed May 31, 2026).
+        </p>
+        <p>
+            [9] “Waittime products and services,” WaitTime, https://www.thewaittimes.com/products-and-services (accessed May 3, 2026).
+https://www.dhs.gov/sites/default/files/publications/privacy_pia_tsa_awt_august2012_0.pdf (accessed May 4, 2026).
+        </p>
+
+        <h2>Appendix D: Mockup Testing Summary</h2>
+        <p>Colton Kelly, Kit Rady, Adrian Salonga, Charles Tang</p>
+        <p>DTC-2 Section 33</p>
+        <p>Professor Coney and Professor Skwish</p>
+        <p>May 18, 2026</p>
+        <h3>Introduction</h3>
+        <p>
+            On May 8, 2026, our team conducted mockup testing with students waiting in line at ShakeSmart. The goal was to understand how students would use live wait-time information for campus dining locations and how they felt about a camera-based system.
+        </p>
+        <h3>Methodology</h3>
+        <p>
+            We showed participants a low-fidelity sketch of a wait-time estimation system, as shown in Fig. 1, and asked short interview questions while they were in line.
+        </p>
+        <figure class="center">
+            <img src="website_image.png" style="width: 100%; max-width: 1000px">
+            <figcaption>Fig. 9. Mockup of wait-time estimation tool</figcaption>
+        </figure>
+        <p>
+            These are the questions we asked:
+        </p>
+        <ol>
+            <li>If you could see the current wait time before going to an on-campus dining location (like Lisa’s or ShakeSmart), would that affect whether you go there?</li>
+            <li>Would you use an app that showed live wait times or line lengths for campus dining locations?</li>
+            <li>If one dining location had a shorter wait than the one you planned on going to, would you change where you planned to eat?</li>
+            <li>Would you trust and use an estimated wait time, or would you prefer to see the actual number of people currently in line?</li>
+            <li>Would you feel uncomfortable if a camera recorded the line to count the number of people in line? The video feed and any other identifying information is not stored in any way.</li>
+        </ol>
+        <h3>Results</h3>
+        <p>
+            We interviewed Sav, Zach, and Reyan. All three said that live wait-time or line-length information would affect where they go to eat. They mentioned that they would check the wait-time before going to locations like Plex Tacos, ShakeSmart, Fran’s, and Lisa’s.
+        </p>
+        <p>The participants all wanted both estimated wait time and number of people in line, since they “don’t trust apps that only show wait times.”</p>
+        <p>
+            All of the participants did not object to a camera-based system after being told that video footage would not be stored. One participant mentioned that most stores already have security cameras, so adding one more wouldn’t make a difference.
+        </p>
+        <h3>Discussion</h3>
+        <p>
+            The testing suggests that students would find live dining wait-time information useful, especially when deciding between dining locations. The main design takeaway is that the interface should show both estimated wait time and current line length.
+        </p>
+        <h3>Introduction</h3>
+        <p>
+            Our team tested four different mockups to determine which was best fit to be our prototype. This testing summary describes a mockup where people in line would be identified using a heat sensor. The goal of our testing is to determine if this would be financially feasible to do, and determine a location where we can place this heat sensor.
+        </p>
+        <figure class="center">
+            <img src="website_image.png" style="width: 100%; max-width: 1000px">
+            <figcaption>Fig. 10. Example of a Heat Sensor</figcaption>
+        </figure>
+        <h3>Methodology</h3>
+        <p>
+            To find possible choices of a thermal sensor, I searched the websites for Walmart, The Home Depot, and Amazon to find the cheapest options. The reasoning behind sorting by lowest price was because of our budget of $150. Top of the line thermal sensors can go for hundreds of dollars: for a heat sensor to be feasible for us it must be well below this price, especially since we would need to buy other materials to process the data from the sensor. Also, people in line could be identified with a camera using machine learning. This means that not only must the heat sensor be cheaper than $150 (including the necessary ethernet cables and PoE injector), but it also must be cheaper than a camera for it to be worth us investing in a heat sensor instead.
+        </p>
+        <p>
+            We also must find a place where we can place the sensor. The sensor must have an unobstructed view of both the line of people and the pickup zone. That way, we can track the time from when people enter a line to where they receive their food. We chose to do so in Lisa’s Cafe, because this place is a very convenient location for our team to meet and is perhaps the most unpredictable place in terms of wait time.
+        </p>
+        <h3>Results</h3>
+        <p>
+            On Walmart, I found two sensors cheaper than $100 (one around $50 and the other around $80), but both had ranges far too small to be used to survey a line. The least expensive thermal sensor that fit our needs was around $250, which is far above our budget. On The Home Depot’s website, we found a sensor that was $130, but even that was likely not wide enough to fully encapture the lines at places like Lisa’s Cafe and Shake Smart.
+        </p>
+        <p>
+            Even though a heat sensor would likely be too expensive to be feasible, we still found it important to find a location in Lisa’s Cafe to place a sensor in case we use the camera mockup moving forwards. We found that a pillar at Lisa’s Cafe could serve as a possible location to set up a sensor or camera, as it is right on the corner where it can see both the line and the pickup zone.
+        </p>
+        <h3>Discussion</h3>
+        <p>
+            Overall, our testing showed that a heat sensor would not be viable for our goal of tracking the wait time at meal exchange stores. However, we were able to find a spot to place one, which may apply to the camera mockup design if we choose to move forwards with that design.
+        </p>
+
+        <h2>Appendix E: Shakesmart Observation</h2>
+        <p>3:23	Line short when I entered at 3:23 pm</p>
+        <p>3:28	Received order at 3:28 pm, ordered a shake</p>
+        <p>3:32	Line gets long at 3:32, going all the way past the information desk</p>
+        <p>3:36	Person at front of line at 3:32 gets order at 3:36, idk what ordered</p>
+        <p>3:37	Person by iPads at 3:32 orders at 3:37, gets order at 3:42, also a shake</p>
+        <p>3:41 Line doesn’t get that much longer at 3:41, some stragglers though</p>
+        <p>3:41	They release acai bowls for four people all at the same time, 3:41</p>
+        <ul>
+            <li>Even though they release all at the same time, there isn’t much discrepancy in waiting</li>
+        </ul>
+        <p>3:42	Middle of the line is at the front at 3:42, waiting to scan cards</p>
+        <p>3:47	Middle of the line gets orders at 3:47</p>
+        <p>3:49	End of the line steadily approaching at 3:49, again some stragglers after the “end”</p>
+        <ul>
+            <li>Line is now constrained to just the Shakesmart part of the floor</li>
+        </ul>
+        <p>3:53	Line again resurges to near information desk at 3:53</p>
+        <p>3:57	iPad to counter time about 5 minutes as well</p>
+        <ul>
+            <li>The person at the iPad at 3:53 tapped his card at 3:57</li>
+        </ul>
+        <p>4:01	Acai bowl wait time sometimes have significant differences compared to shakes</p>
+        <ul>
+            <li>Someone that ordered at 3:53 didn’t get his until 4:01</li>
+        </ul>
+        <p>4:02	End of line from 3:53 at front at 4:02, but the line is still just as long</p>
+        <ul>
+            <li>The line essentially pretends to dissipate</li>
+        </ul>
+        <p>4:22	Line dissipates at 4:22</p>
+        <p>4:22	Crowd is created while waiting for orders at 4:22</p>
+        <p>4:28	Line again dissipates at 4:28, new crowd is waiting for orders 4:28</p>
+        <p>Notes</p>
+        <ul>
+            <li>Orders still come out from scanning card to hands in about 5 minutes</li>
+            <li>iPads seem to cut down some time, but they still end up having to ask questions to students</li>
+            <li>Screaming out names and orders is still fine when Norris isn’t loud, no orders left at counter</li>
+            <li>There seems to be an even number of people between shakes and bowls</li>
+        </ul>
     </div>
 </body>
 </html>
