@@ -13,7 +13,7 @@ To set up a local copy of the project for the first time...
 - In a terminal, navigate to the project root
 - Set up the Python virtual environment with `python3 -m venv .venv`
 - Install the project requirements with `pip install -r requirements.txt`
-  - if this fails, try updating pip with `pip install –upgrade pip
+  - if this fails, try updating pip with `pip install –upgrade pip`
 
 The website is used to display the estimated wait times and line lengths for all the stores you are monitoring with this program. This project assumes the data for the website is being retrieved from an S3 bucket. This repo has a GitHub actions workflow that syncs the website source files with the S3 bucket upon pushes to main. The workflow assumes the access key and secret access key for an IAM user/role with the proper permissions are stored in the repo as repository secrets.
 
@@ -24,7 +24,9 @@ The video processing program uses the AI vision library called YOLO to track the
 To run the video processing program...
 - set the VIDEO_SOURCE in config.py to be the correct video source for your camera setup
   - If you are running on a MacBook with an iPhone associated with it, set the video source to 0 to use the iPhone as the camera
-- If you haven't run the program on this machine before, run `AWS configure` and enter the access key and secret access key for an IAM user/role with the proper permissions, set the default region to be `us-east-2` and set the default output format to `json`
+- If you haven't run the program on this machine before...
+  - Run `AWS configure` and enter the access key and secret access key for an IAM user/role with the proper permissions, set the default region to be `us-east-2` and set the default output format to `json`
+  - Set the S3 URI in the config file to match that of the S3 bucket you will be uploading to
 - Open a terminal and run `source .venv/bin/activate` to make all Python commands use this projects Python installation for the duration of the terminal session
 - Then run `python3 -m vision.worker` to start the program
 
