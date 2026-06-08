@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Waittime: Final Report</title>
+    <link href="report_style.css" rel="stylesheet">
+</head>
+<body>
+    <div style="padding: 5%">
+        <h1 class="center"> NU Waitime</h1>
+
+        <p class="center">June 5, 2026</p>
+        <p class="center">
+            Submitted By Colton Kelly, Kit Rady, Adrian Salonga, Charles Tang
+            <br> Section 33 Team 04
+        </p>
+        <p class="center">
+            Design Thinking and Communication Program
+            <br>Professors Skwish and Coney
+            <br>McCormick School of Engineering and Applied Science
+            <br>Northwestern University
+            <br>Evanston, Illinois 60208
+        </p>
+        <figure class="center">
+            <img src="website_image.png" style="width: 100%; max-width: 1000px">
+            <figcaption>Fig. 1. An image of the Waittime website.</figcaption>
+        </figure>
+
+        <h2>Table of Contents</h2>
+        <p>this will be filled out later once there are contents to be linked to in this table</p>
+
+        <h2>List of Figures</h2>
+        <p>this will be filled out once all the figures are in the report</p>
+
+        <h2>List of Tables</h2>
+        <p>this will be filled out once all the tables are in the report</p>
+
+        <h2>Executive Summary</h2>
+        <h3>Problem</h3>
+        <p>
+            Students at Northwestern University face a lot of frustration when waiting in lines at meal exchange stores. The source of this frustration comes from the total wait time of the lines, the unpredictability of the wait times, and the noise of the stores.
+        </p>
+        <h3>Purpose and Scope</h3>
+        <p>
+            Our purpose is to reduce the frustration students feel when waiting in lines by informing them of the estimated wait time at each store. The goal of this is to give students more information about where they should eat at any given time. By doing so, this should limit the wait times at stores when they are at their busiest.
+        </p>
+        <h3>Methodology</h3>
+        <p>
+            We interviewed students who frequently go to Lisa’s Cafe, a meal exchange store, to hear about what their main complaints were (See Appendix A). Then, we conducted background research on patents and companies with similar designs (See Appendix B and C). We used this research to create four mockups before moving forward with a camera monitoring design (See Appendix D).
+        </p>
+        <h3>Design</h3>
+        <p>
+            We trained a modified version of the YOLO Object Detection to recognize food from Lisa’s Cafe. It can recognize when food is in the defined “pickup zone” and when people are in the defined line. We track each person as they travel the line and receive their food, and use that total time as an estimate for the current wait time at a store.
+        </p>
+        <table>
+            <caption>TABLE 1: Components and Benefits of NU Waittime</caption>
+            <thead>
+                <tr>
+                    <th>Components</th>
+                    <th>Benefits</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Camera</td>
+                    <td>132 degree viewing angle wide enough to view entire line in a store</td>
+                </tr>
+                <tr>
+                    <td>YOLO Data Processing</td>
+                    <td>Algorithm that can identify people in line and food being received</td>
+                </tr>
+                <tr>
+                    <td>Website</td>
+                    <td>Website makes number of people and estimated time easy to view</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
