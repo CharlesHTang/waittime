@@ -174,7 +174,16 @@
         </p>
         <h3>YOLO Data Processing/User Interface</h3>
         <p>
-            TODO
+            Our team decided to use the You Only Look Once (YOLO) models for their computer vision capabilities since they provide trained models that can track and identify people. Our program works by using the YOLO models to analyze each frame uploaded to the laptop, or other edge device. To begin, we use YOLO’s QueueManager class to count the number of people standing in an area we define as the line region. This count is used to identify the number of people in line.
+        </p>
+        <p>
+            To calculate the wait times, every person in the frame is tracked and given an ID using YOLO’s ByteTrack algorithm. When a person enters the line region, the time of the event is recorded and associated with the person’s ID. Later, when that same person triggers a pickup event inside an area we define as the pickup region, the time of the event is also recorded. We define a pickup event as when the person’s wrist (tracked using YOLO’s pose model) enters the pickup region and is within 100 pixels of a food order, which we fine-tuned the model to identify. The difference between the two times is considered a completed wait time, and the estimated wait time is the average of all the completed wait times recorded in the last five minutes.
+        </p>
+        <p>
+            Since the YOLO algorithm is still able to recognize people who move behind objects that obstruct them from the camera’s view, the program can run accurately. Our algorithm also limits inaccuracies by ensuring that people standing in line who do not order are not counted into the estimated wait time: only people who pick up an order are factored into the wait time.
+        </p>
+        <p>
+            This estimated wait time, as well as the number of people currently in line, is then uploaded to our website hosted on AWS’s CloudFront. Users can access the website by typing the URL into their browser or by scanning our provided QR code.
         </p>
 
         <h2>Future Development</h2>
@@ -360,7 +369,7 @@
             </tbody>
         </table>
 
-        <h2 class="center">Appendix B: Patent Research Summary</h2>
+        <h2>Appendix B: Patent Research Summary</h2>
         <p class="center">Section 33 with Profs. Kelly Coney and Andrew Skwish</p>
         <p class="center">Team 4 Members: Colton Kelly, Kit Rady, Adrian Salonga & Charles Tang</p>
         <p class="center">Date Written: May 6, 2026</p>
@@ -393,7 +402,7 @@
             <figcaption>Fig. 4.</figcaption>
         </figure>
 
-        <h2 class="center">Appendix C: Competitive Benchmarking Research</h2>
+        <h2>Appendix C: Competitive Benchmarking Research</h2>
         <p class="center">Charles Tang</p>
         <p class="center">DTC-2 Section 33</p>
         <p class="center">Professor Coney and Professor Skwish</p>
@@ -483,10 +492,10 @@
         </p>
 
         <h2>Appendix D: Mockup Testing Summary</h2>
-        <p>Colton Kelly, Kit Rady, Adrian Salonga, Charles Tang</p>
-        <p>DTC-2 Section 33</p>
-        <p>Professor Coney and Professor Skwish</p>
-        <p>May 18, 2026</p>
+        <p class="center">Colton Kelly, Kit Rady, Adrian Salonga, Charles Tang</p>
+        <p class="center">DTC-2 Section 33</p>
+        <p class="center">Professor Coney and Professor Skwish</p>
+        <p class="center">May 18, 2026</p>
         <h3>Introduction</h3>
         <p>
             On May 8, 2026, our team conducted mockup testing with students waiting in line at ShakeSmart. The goal was to understand how students would use live wait-time information for campus dining locations and how they felt about a camera-based system.
@@ -600,31 +609,60 @@
             <li>Scan our QR code. Read the wait time. Decide whether or not you want to go.</li>
         </ol>
         <p>For both methods, feel free to bookmark our URL when you are finished reading the wait time.</p>
-        <h2>QR Code</h2>
+        <h3>QR Code</h3>
         <figure class="center">
             <img src="images/qr-code.png" style="width: 100%; max-width: 500px">
             <figcaption></figcaption>
         </figure>
-        <h2>URL</h2>
+        <h3>URL</h3>
         <a href="https://d11711mawr4zgq.cloudfront.net/ ">https://d11711mawr4zgq.cloudfront.net/</a>
 
-        <h2>Appendix G: Ethical Considerations</h2>
-        <h3>Problem Statement</h3>
-        <p>Wait times at meal exchange stores are too long and/or unpredictable for a satisfactory customer experience</p>
-        <h3>Video Privacy</h3>
+        <h2>Appendix G: Ethical Considerations Summary</h2>
+        <p class="center">Section 33 with Profs. Kelly Coney and Andrew Skwish</p>
+        <p class="center">Team 4 Members: Colton Kelly, Kit Rady, Adrian Salonga & Charles Tang</p>
+        <p class="center">Date Written: May 18, 2026</p>
+        <h3>Introduction</h3>
         <p>
-            To address privacy concerns, our team will design the system to not store identifiable video footage. We will process the video and delete the footage as soon as the processing is completed. We will also test the cameras to ensure that raw footage is not saved to any location by default. In addition, we will post a sign close to the camera to communicate to users what data is being collected, why it is being collected, and how it will be protected. These safeguards ensure the design can achieve its goals without unnecessary surveillance.
-        </p>
-        <h3>Environmental concerns from computing use</h3>
-        <p>
-            Due to price concerns with using a raspberry pi, we will have to use cloud computing to count the number of people in line. This poses an environmental problem because cloud computing involves an excessive use of resources from data centers. If we can find a way to reduce costs, a raspberry pi will eliminate the environmental concern, but otherwise we will have to do more research into exactly how big of an impact our camera design would have.
-        </p>
-        <h3>Increasing Employee Workload</h3>
-        <p>
-            While the above two ethical considerations are issues our chosen solution will have to deal with, this concern is something we are avoiding through our choice of solution. We wanted to make sure our solution does not increase the workload of the workers, either directly, by giving them extra tasks to do, or indirectly, by increasing overall demand or spikes in demand.
+            As Northwestern DTC II students in a whitespace section, our goal is to design a solution to a problem we researched. Through research, we devised a mission to reduce the frustration due to the length and time of the lines at meal exchange stores on Northwestern’s Evanston campus; our solution to this is to provide estimated wait times for these stores via a publicly available website. Specifically, we will be inputting video feed from the stores into the YOLO AI vision library to track data regarding wait times, then displaying this data on a website supported by AWS cloud infrastructure.
         </p>
         <p>
-            We chose to report estimated wait times via a camera system as we felt it would avoid increasing the workload of workers indirectly or directly; it does not require the workers interact with it in any way, and simply reporting wait times is not likely to increase demand (if anything, it will decrease spikes in demand, as customers will be able to self regulate and not show up when it is already busy).
+            Our design will involve capturing video of all the store patrons and workers, will rely heavily on AI video processing, and will be utilizing Amazon’s cloud services. All of these components of the design have strong ethical implications, and those considerations will need to be handled to the best of our ability within our constraints. The following sections will go over these ethical considerations, among others, throughout the life cycle of our design and product.
+        </p>
+        <h3>Development</h3>
+        <p>
+            An important aspect of our design that we started considering from the beginning of the process is how users will interact with the design. We knew that given the timeline and budget of this class, we likely would not be able to deliver a fully fleshed out product. Instead, many aspects of the design will have to be left as prototypes or as proof of concept. However, this means that users will have a less than ideal experience interacting with our product.
+        </p>
+        <p>
+            For example, we can create a function proof of concept without setting up a proper domain name for our website. To easily set up a domain name through AWS cloud infrastructure, we would need to use AWS Route53, something which can be surprisingly complex and may take more time than we have. However, this is not necessary for users to visit our website; instead, users can visit the URL for our CloudFront distribution, as opposed to a custom and informative domain name. However, this would mean users would be visiting a seemingly random and potentially suspicious URL, which would introduce a lot of friction to user experience.
+        </p>
+        <h3>Manufacturing</h3>
+        <p>
+            When choosing how we would implement our chosen design, we had to consider what pre-existing solutions would be the best to use, both functionally and ethically. A big component of our solution is the YOLO AI vision library, as it is the driving force behind our ability to actually collect the data we need to calculate the estimated wait times. Thankfully, the YOLO library is distributed under the MIT license, meaning using it for any purpose is legally allowed.
+        </p>
+        <h3>User Impact</h3>
+        <p>
+            The timeline and budget constraints of this class mean that a large portion of our product will remain as a proof of concept, thus introducing friction to the user experience in a variety of ways. See the development section above for more information.
+        </p>
+        <h3>Social Impact</h3>
+        <p>
+            Many aspects of this project involve areas of ethical concern that have become more controversial in the current societal conscience. With increased data collection in the modern day, data privacy is a top concern for many people, making installing a camera in meal exchange stores ethically questionable. However, we would not be storing the video, as we would delete it immediately after processing it with the YOLO library to get the necessary anonymized data, meaning the captured video stays private. Additionally, given that there are security cameras installed around campus that likely do store their video, we would be collecting less data than what store patrons already implicitly agree to. Thus, we do not feel the live video feed is a significant ethical concern.
+        </p>
+        <p>
+            Another concern is the use of AWS. With the increase in AI use and production, which use data centers in almost every step of those processes, data centers as a whole have become a controversial topic. Many people oppose the exponential increase in construction of new data centers, spurred by the growth of the AI industry, and do not want any new data centers to be made at all. The main reason for this opposition is how data centers negatively impact the surrounding power grid, both by increasing stress on the infrastructure and by increasing consumer power costs. Additionally, for many people, data centers are inherently linked to AI, even though data centers are used for numerous modern computing processes; for many of those people, AI and anything related to it is morally wrong. Given that the service provided by AWS is computing resources in data centers, we are deliberately choosing to use infrastructure that is under heavy scrutiny by the general public for ethical concerns.
+        </p>
+        <p>
+            However, we feel this is a reasonable decision for a variety of reasons. One reason is that, given the dominance of AWS in the cloud computing industry, a vast number of online resources people use everyday are already dependent on AWS. Compared to the scale of all those other uses of AWS, our use of AWS will be extremely trivial in comparison; thus, the impact will be similarly trivial, regardless of whether our project remains a proof of concept or not. Additionally, given that this is a ten-week program with a $150 budget that is part of an undergraduate college education program, and not an endeavor by a professional and established company, we do not have the resources to avoid this problem, as we are not able to acquire enough computers to act as the servers for our website. Should the project advance beyond the scope of this class, we would look into other website hosting methods, such as whatever method the university uses to host sites like Cats on Campus and residential college websites.
+        </p>
+        <p>
+            Finally, our use of AI to collect data from a video feed is also ethically contentious. While we would be running the YOLO library on our own machines, thus avoiding data center concerns, we are still using AI. The main issue with our usage of AI would be ethical concerns regarding how the AI was trained, as a big concern with training AI is how the data for the training is sourced. Many people do not like that resources provided to the public on good will and faith are being used by AI startups to train their for-profit AI models. However, the YOLO library is open source and therefore not for profit, thus circumventing these specific concerns.
+        </p>
+        <h3>End of Life</h3>
+        <p>
+            Due to our product being software based, the plan for end of life is quite simple for the majority of the product components: just turn the servers off. The only other component of our product that would need to be disposed of would be the camera. This can be handled the same way old security cameras are disposed of.
+        </p>
+        <h3>Conclusion</h3>
+        <p>
+            The ethical considerations for this design are complex and varied. We will be capturing video of all the store patrons and workers, we will be heavily relying on AI video processing, and we will be utilizing Amazon’s cloud services. All of these components of the design have strong ethical implications, and those considerations will need to be handled to the best of our ability within our constraints. We will handle these as best we can within the timeline, budget, and scope constraints.
         </p>
 
         <h2>Appendix H: Safety Evaluation</h2>
@@ -634,11 +672,11 @@
         </figure>
 
         <h2>Appendix I: Project Definition</h2>
-        <p>Project Definition</p>
-        <p>Colton Kelly, Kit Rady, Adrian Salonga, Charles Tang</p>
-        <p>DTC-2 Section 33 Team 4</p>
-        <p>Professor Coney and Professor Skwish</p>
-        <p>May 18, 2026</p>
+        <p class="center">Project Definition</p>
+        <p class="center">Colton Kelly, Kit Rady, Adrian Salonga, Charles Tang</p>
+        <p class="center">DTC-2 Section 33 Team 4</p>
+        <p class="center">Professor Coney and Professor Skwish</p>
+        <p class="center">May 18, 2026</p>
         <p>
             Mission Statement: Our mission is to reduce the frustration due to the length and time of the lines at meal exchange stores.
         </p>
