@@ -1,3 +1,8 @@
+:root {
+    --light-gray: #a7a7a7;
+    --lighter-gray: #d2d2d2;
+}
+
 h2 {
     text-align: center;
 }
@@ -19,4 +24,39 @@ th {
 
 .center {
     text-align: center;
+}
+
+.h2_contents {
+    font-size: 1.2em;
+    color: black;
+}
+
+.h2_contents:hover {
+    color: gray;
+}
+
+.h3_contents {
+    font-size: 1.2em;
+    color: gray;
+}
+
+.h3_contents:hover {
+    color: var(--light-gray);
+}
+
+.h4_contents {
+    font-size: 1.2em;
+    color: var(--light-gray);
+}
+
+.h4_contents:hover {
+    color: var(--lighter-gray);
+}
+
+.indent {
+    text-indent: 2em;
+}
+
+.indent_twice {
+    text-indent: 4em;
 }
