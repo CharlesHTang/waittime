@@ -22,8 +22,9 @@
             <br>Northwestern University
             <br>Evanston, Illinois 60208
         </p>
-        <figure class="center">
-            <img src="images/website_image.png" style="width: 100%; max-width: 1000px">
+        <br>
+        <figure id="fig 1">
+            <img src="images/figure_1.png" style="max-width: 1000px">
             <figcaption>Fig. 1. An image of the Waittime website.</figcaption>
         </figure>
 
@@ -134,10 +135,28 @@
                 <p class="indent_twice"><a class="h4_contents" href="#Troubleshooting K">Troubleshooting</a></p>
 
         <h2 id="List of Figures">List of Figures</h2>
-        <p>this will be filled out once all the figures are in the report</p>
+        <p><a class="h2_contents" href="#fig 1">Fig. 1. An image of the Waittime website.</a></p>
+        <p><a class="h2_contents" href="#fig 2">Fig. 2. A sketch of the layout of Lisa's.</a></p>
+        <p><a class="h2_contents" href="#fig 3">Fig. 3. TSA wait time card.</a></p>
+        <p><a class="h2_contents" href="#fig 4">Fig. 4. Televisions displaying TSA wait times.</a></p>
+        <p><a class="h2_contents" href="#fig 5">Fig. 5. Waitwhile app.</a></p>
+        <p><a class="h2_contents" href="#fig 6">Fig. 6. WaitTime’s Queue Algorithm for un-structured queues.</a></p>
+        <p><a class="h2_contents" href="#fig 7">Fig. 7..</a></p>
+        <p><a class="h2_contents" href="#fig 8">Fig. 8..</a></p>
+        <p><a class="h2_contents" href="#fig 9">Fig. 9..</a></p>
+        <p><a class="h2_contents" href="#fig 10">Fig. 10. Mockup of wait-time estimation tool.</a></p>
+        <p><a class="h2_contents" href="#fig 11">Fig. 11. Example of a Heat Sensor.</a></p>
+        <p><a class="h2_contents" href="#fig 12">Fig. 12. A QR code that links to the NU Waittime website.</a></p>
+        <p><a class="h2_contents" href="#fig 13">Fig. 13. Safety Risk Scenarios.</a></p>
 
         <h2 id="List of Tables">List of Tables</h2>
-        <p>this will be filled out once all the tables are in the report</p>
+        <p><a class="h2_contents" href="#table 1">Table 1. Components and Benefits of NU Waittime.</a></p>
+        <p><a class="h2_contents" href="#table 2">Table 2. Meal Exchange Locations and Hours.</a></p>
+        <p><a class="h2_contents" href="#table 3">Table 3. Lisa’s Cafe Main Complaints.</a></p>
+        <p><a class="h2_contents" href="#table 4">Table 4. Project Requirements.</a></p>
+
+        <br>
+        <br>
 
         <h2 id="Executive Summary">Executive Summary</h2>
         <h3 id="Problem ES">Problem</h3>
@@ -156,8 +175,8 @@
         <p>
             We trained a modified version of the YOLO Object Detection to recognize food from Lisa’s Cafe. It can recognize when food is in the defined “pickup zone” and when people are in the defined line. We track each person as they travel the line and receive their food, and use that total time as an estimate for the current wait time at a store.
         </p>
-        <table>
-            <caption>TABLE 1: Components and Benefits of NU Waittime</caption>
+        <table id="table 1">
+            <caption>Table 1. Components and Benefits of NU Waittime.</caption>
             <thead>
                 <tr>
                     <th>Components</th>
@@ -206,8 +225,8 @@
         <p>
             The staff at these stores would not directly interact with NU waittime, but they would appear on camera and must be recognized by our system so NU waittime knows when food has been received by the customer. Even though the workers would not interact with the product, they still would benefit from our design, as students would likely go to other meal exchange stores if the line was too long (See Appendix A). Below is a table of all of the meal exchange locations and their hours.
         </p>
-         <table>
-            <caption>Table 2. Meal Exchange Locations and Hours</caption>
+         <table id="table 2">
+            <caption>Table 2. Meal Exchange Locations and Hours.</caption>
             <thead>
                 <tr>
                     <th>Name</th>
@@ -279,6 +298,10 @@
         <p>
             Our team decided to use the You Only Look Once (YOLO) models for their computer vision capabilities since they provide trained models that can track and identify people. Our program works by using the YOLO models to analyze each frame uploaded to the laptop, or other edge device. To begin, we use YOLO’s QueueManager class to count the number of people standing in an area we define as the line region. This count is used to identify the number of people in line.
         </p>
+        <figure id="fig 2">
+            <img src="images/figure_2.jpg" style="max-width: 700px">
+            <figcaption>Fig. 2. A sketch of the layout of Lisa's.</figcaption>
+        </figure>
         <p>
             To calculate the wait times, every person in the frame is tracked and given an ID using YOLO’s ByteTrack algorithm. When a person enters the line region, the time of the event is recorded and associated with the person’s ID. Later, when that same person triggers a pickup event inside an area we define as the pickup region, the time of the event is also recorded. We define a pickup event as when the person’s wrist (tracked using YOLO’s pose model) enters the pickup region and is within 100 pixels of a food order, which we fine-tuned the model to identify. The difference between the two times is considered a completed wait time, and the estimated wait time is the average of all the completed wait times recorded in the last five minutes.
         </p>
@@ -408,8 +431,8 @@
         <ul>
             <li>Sometimes waits 25+ minutes even when ShakeSmart line only has a few people</li>
         </ul>
-        <table>
-            <caption>Table 3: Lisa’s Cafe Main Complaints</caption>
+        <table id="table 3">
+            <caption>Table 3. Lisa’s Cafe Main Complaints.</caption>
             <thead>
                 <tr>
                     <th>Identifier</th>
@@ -484,25 +507,25 @@
         <p>
             This design consisted of processors that could handle multiple inputs and sustain multiple ways to monitor a single queue. After receiving the queue information outputs, that processor would predict how long the wait time would take based on said outputs and transfer that prediction to a display. Below is a flow chart that outlines this process.
         </p>
-        <figure class="center">
-            <img src="images/website_image.png" style="width: 100%; max-width: 1000px">
-            <figcaption>Fig. 2.</figcaption>
+        <figure id="fig 3">
+            <img src="images/figure_1.png" style="max-width: 1000px">
+            <figcaption>Fig. 3..</figcaption>
         </figure>
         <h3 id="Wireless Wait Time Communication System B">Wireless Wait Time Communication System</h3>
         <p>
             This patent involves tracking user data and creating an estimated wait time based on a user’s previous actions. First, the user’s device uses a network to send location data. The arrival at said location and the departure from said location are then stored in a memory device. The algorithms then calculate predicted and baseline values for the number of times going to that location. Wait time is then calculated based on the arrival time, and the algorithm also calculates the line exit time based on the wait time.
         </p>
-        <figure class="center">
-            <img src="images/website_image.png" style="width: 100%; max-width: 1000px">
-            <figcaption>Fig. 3.</figcaption>
+        <figure id="fig 4">
+            <img src="images/figure_1.png" style="max-width: 1000px">
+            <figcaption>Fig. 4..</figcaption>
         </figure>
         <h3 id="Toyota Points-of-Interest Wait Time Prediction System B">Toyota Points-of-Interest Wait Time Prediction System</h3>
         <p>
             Toyota uses GPS at points-of-interest to determine wait times at these locations. The processor determines the current and historical occupancy in the area. Then, the processor runs an algorithm to determine the current and future waiting time at this point of interest, which is then output onto a user interface device.
         </p>
-        <figure class="center">
-            <img src="images/website_image.png" style="width: 100%; max-width: 1000px">
-            <figcaption>Fig. 4.</figcaption>
+        <figure id="fig 5">
+            <img src="images/figure_1.png" style="max-width: 1000px">
+            <figcaption>Fig. 5..</figcaption>
         </figure>
 
         <h2 id="Appendix C">Appendix C: Competitive Benchmarking Research</h2>
@@ -521,24 +544,24 @@
         <ul>
             <li>Every hour, cards are given to people entering the line, and later returned to TSA officers at the end of the line (Figure 1). So, the TSA can track how long it took one person to go through the line. This information is then displayed on the My TSA app. However, this method does not accurately reflect wait times if line lengths are constantly changing [1]. Two Northwestern students we interviewed mentioned that TSA wait times are inaccurate in their experience, with the actual wait times being much longer than the estimated time.</li>
         </ul>
-        <figure class="center">
-            <img src="images/website_image.png" style="width: 100%; max-width: 1000px">
-            <figcaption>Figure 5: TSA wait time card. [2]</figcaption>
+        <figure id="fig 6">
+            <img src="images/figure_6.png" style="max-width: 500px">
+            <figcaption>Fig. 6. TSA wait time card. [2]</figcaption>
         </figure>
         <ul>
             <li>The TSA also has an automated system called the TSA’s Automated Wait Time (AWT) system. It utilizes information broadcasted from Bluetooth-enabled devices in the line to calculate wait times. The system works by collecting timestamped, hashed MAC addresses as individuals enter the line and exit the line. The difference in timestamps for each MAC address is then used to determine the wait time [3]. The estimated wait times are displayed on televisions in the terminal and on the My TSA app (Figure 2).</li>
         </ul>
-        <figure class="center">
-            <img src="images/website_image.png" style="width: 100%; max-width: 1000px">
-            <figcaption>Figure 6: Televisions displaying TSA wait times. [4]</figcaption>
+        <figure id="fig 7">
+            <img src="images/figure_7.jpg" style="max-width: 600px">
+            <figcaption>Fig. 7. Televisions displaying TSA wait times. [4]</figcaption>
         </figure>
         <h3 id="Waitwhile C">Waitwhile</h3>
         <p>
             Waitwhile allows users to join a virtual line by scanning a QR code. The app displays the user’s place in line and their estimated wait time (Figure 3).
         </p>
-        <figure class="center">
-            <img src="images/website_image.png" style="width: 100%; max-width: 1000px">
-            <figcaption>Figure 7: Waitwhile app. [5]</figcaption>
+        <figure id="fig 8">
+            <img src="images/figure_8.jpeg" style="max-width: 600px">
+            <figcaption>Fig. 8. Waitwhile app. [5]</figcaption>
         </figure>
         <p>
             Using the number of people in the line, Waitwhile computes the estimated wait time in two ways: Classic and Intelligent.
@@ -554,9 +577,9 @@
         <p>
             WaitTime uses cameras mounted above queues to interpret crowd conditions in real-time, so organizations know wait times and crowd densities. The system can monitor high volume entry and exits, un-structured queues, structured queues, and density measurements. The product is used by organizations like The Denver Broncos, Ohio State University, and The Miami Heat to understand how crowds are behaving at their stadiums [9].
         </p>
-        <figure class="center">
-            <img src="images/website_image.png" style="width: 100%; max-width: 1000px">
-            <figcaption>Figure 8: WaitTime’s Queue Algorithm for un-structured queues. [9]</figcaption>
+        <figure id="fig 9">
+            <img src="images/figure_9.png" style="max-width: 600px">
+            <figcaption>Fig. 9. WaitTime’s Queue Algorithm for un-structured queues. [9]</figcaption>
         </figure>
         <p>
             There are no online reviews for WaitTime since it only serves large enterprise customers.
@@ -607,9 +630,9 @@
         <p>
             We showed participants a low-fidelity sketch of a wait-time estimation system, as shown in Fig. 1, and asked short interview questions while they were in line.
         </p>
-        <figure class="center">
-            <img src="images/website_image.png" style="width: 100%; max-width: 1000px">
-            <figcaption>Fig. 9. Mockup of wait-time estimation tool</figcaption>
+        <figure id="fig 10">
+            <img src="images/figure_10.jpg" style="max-width: 700px">
+            <figcaption>Fig. 10. Mockup of wait-time estimation tool.</figcaption>
         </figure>
         <p>
             These are the questions we asked:
@@ -637,9 +660,9 @@
         <p>
             Our team tested four different mockups to determine which was best fit to be our prototype. This testing summary describes a mockup where people in line would be identified using a heat sensor. The goal of our testing is to determine if this would be financially feasible to do, and determine a location where we can place this heat sensor.
         </p>
-        <figure class="center">
-            <img src="images/website_image.png" style="width: 100%; max-width: 1000px">
-            <figcaption>Fig. 10. Example of a Heat Sensor</figcaption>
+        <figure id="fig 11">
+            <img src="images/figure_1.png" style="max-width: 1000px">
+            <figcaption>Fig. 11. Example of a Heat Sensor.</figcaption>
         </figure>
         <h3 id="Methodology D2">Methodology</h3>
         <p>
@@ -713,9 +736,9 @@
         </ol>
         <p>For both methods, feel free to bookmark our URL when you are finished reading the wait time.</p>
         <h3 id="QR Code F">QR Code</h3>
-        <figure class="center">
-            <img src="images/qr-code.png" style="width: 100%; max-width: 500px">
-            <figcaption></figcaption>
+        <figure id="fig 12">
+            <img src="images/figure_12.png" style="max-width: 500px">
+            <figcaption>Fig. 12. A QR code that links to the NU Waittime website.</figcaption>
         </figure>
         <h3 id="URL F">URL</h3>
         <a href="https://d11711mawr4zgq.cloudfront.net/ ">https://d11711mawr4zgq.cloudfront.net/</a>
@@ -769,9 +792,9 @@
         </p>
 
         <h2 id="Appendix H">Appendix H: Safety Evaluation</h2>
-        <figure class="center">
-            <img src="images/website_image.png" style="width: 100%; max-width: 500px">
-            <figcaption>Fig. 11. Safety Risk Scenarios</figcaption>
+        <figure id="fig 13">
+            <img src="images/figure_1.png" style="max-width: 1000px">
+            <figcaption>Fig. 13. Safety Risk Scenarios.</figcaption>
         </figure>
 
         <h2 id="Appendix I">Appendix I: Project Definition</h2>
@@ -814,8 +837,8 @@
         <p>
             We have decided on implementing a camera system to track the number of people in line and the time it will take to pick up food. The feed from the camera needs to be accessible to everybody so there are no concerns over privacy.
         </p>
-        <table>
-            <caption>Table 4: Project Requirements</caption>
+        <table id="table 4">
+            <caption>Table 4. Project Requirements.</caption>
             <thead>
                 <tr>
                     <th>Needs</th>

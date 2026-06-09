@@ -5,6 +5,19 @@
 
 h2 {
     text-align: center;
+    padding-top: 2em;
+}
+
+h3 {
+    padding-top: 1em;
+}
+
+figure {
+    text-align: center;
+}
+
+img {
+    width: 100%;
 }
 
 table {
